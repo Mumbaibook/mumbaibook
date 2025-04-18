@@ -7,7 +7,7 @@ const supabase = require('../db/supabase');
 // Update CORS configuration
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? ['https://mumbaibook.vercel.app/']
+        ? ['https://your-vercel-url.vercel.app']
         : ['http://localhost:3000'],
     credentials: true
 }));
@@ -56,9 +56,13 @@ app.post('/api/register', async (req, res) => {
 
 // Login endpoint
 app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    
     try {
+        const { username, password } = req.body;
+        
+        if (!username || !password) {
+            return res.status(400).json({ error: 'Username and password are required' });
+        }
+
         const { data: user, error } = await supabase
             .from('users')
             .select('*')
@@ -66,40 +70,38 @@ app.post('/api/login', async (req, res) => {
             .single();
 
         if (error || !user) {
-            res.status(401).json({ error: 'Invalid credentials' });
-            return;
+            console.error('Login error:', error);
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
-            res.status(401).json({ error: 'Invalid credentials' });
-            return;
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         const deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
 
         const { error: sessionError } = await supabase
             .from('user_sessions')
-            .insert([
-                { 
-                    user_id: user.id, 
-                    device_id: deviceId 
-                }
-            ]);
+            .insert([{ 
+                user_id: user.id, 
+                device_id: deviceId 
+            }]);
 
         if (sessionError) {
-            res.status(500).json({ error: 'Session creation failed' });
-            return;
+            console.error('Session error:', sessionError);
+            return res.status(500).json({ error: 'Session creation failed' });
         }
 
-        res.json({
+        return res.json({
             userId: user.id,
             username: user.username,
             deviceId: deviceId,
             walletBalance: user.wallet_balance
         });
     } catch (error) {
-        res.status(500).json({ error: 'Login failed' });
+        console.error('Server error:', error);
+        return res.status(500).json({ error: 'Login failed' });
     }
 });
 
