@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Book - My Bets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, #0a2463, #3e92cc);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #d4af37;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #0a2463;
+        }
+        
+        .wallet-info {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wallet-amount {
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f0f0f0;
+            color: #0a2463;
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .menu-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.open + .main-content {
+            margin-left: 250px;
+        }
+        
+        .page-title {
+            color: #0a2463;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4af37;
+        }
+        
+        /* Bets Table Styles */
+        .bets-container {
+            max-width: 100%;
+            overflow-x: auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f9f9f9;
+            color: #0a2463;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.won {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.lost {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .bet-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .bet-number {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .no-bets {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+        
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls select, 
+        .filter-controls input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .filter-controls button {
+            padding: 8px 15px;
+            background-color: #0a2463;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .filter-controls button:hover {
+            background-color: #3e92cc;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 0;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                ☰
+            </div>
+            <div class="logo-icon">MB</div>
+            <h3>Mumbai Book</h3>
+        </div>
+        <div class="wallet-info">
+            <span>Wallet:</span>
+            <span class="wallet-amount" id="walletAmount">₹0</span>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li onclick="window.location.href='deposit.html'">
+                <span>💳</span> Deposit
+            </li>
+            <li onclick="window.location.href='withdraw.html'">
+                <span>💰</span> Withdraw
+            </li>
+            <li onclick="window.location.href='rules.html'">
+                <span>📜</span> Rules
+            </li>
+            <li onclick="window.location.href='results.html'">
+                <span>🎲</span> Results
+            </li>
+            <li onclick="window.location.href='transactions.html'">
+                <span>📊</span> Transactions
+            </li>
+            <li class="active" onclick="window.location.href='bets.html'">
+                <span>🎯</span> My Bets
+            </li>
+            <li onclick="window.location.href='complaint.html'">
+                <span>✉️</span> Complaint
+            </li>
+            <li onclick="logout()">
+                <span>🚪</span> Logout
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <h2 class="page-title">My Bets</h2>
+        
+        <div class="filter-controls">
+            <select id="gameFilter">
+                <option value="all">All Games</option>
+                <option value="Game 1">Game 1</option>
+                <option value="Game 2">Game 2</option>
+                <option value="Game 3">Game 3</option>
+                <option value="Game 4">Game 4</option>
+                <option value="Game 5">Game 5</option>
+                <option value="Game 6">Game 6</option>
+            </select>
+            
+            <select id="statusFilter">
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+            </select>
+            
+            <input type="date" id="dateFilter">
+            
+            <button onclick="filterBets()">Apply Filters</button>
+            <button onclick="resetFilters()">Reset</button>
+        </div>
+        
+        <div class="bets-container">
+            <table id="betsTable">
+                <thead>
+                    <tr>
+                        <th>Bet ID</th>
+                        <th>Game</th>
+                        <th>Time</th>
+                        <th>Numbers</th>
+                        <th>Amount</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Result Time</th>
+                    </tr>
+                </thead>
+                <tbody id="betsBody">
+                    <!-- Bets will be loaded here -->
+                </tbody>
+            </table>
+            
+            <div id="noBets" class="no-bets" style="display: none;">
+                No bets found. Your placed bets will appear here.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update wallet amount
+            document.getElementById('walletAmount').textContent = `₹${currentUser.walletBalance || 0}`;
+            
+            // Load bets
+            loadBets();
+        });
+        
+        // Load bets from localStorage
+        function loadBets() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            let bets = JSON.parse(localStorage.getItem('bets')) || [];
+            
+            // Filter bets for current user
+            bets = bets.filter(b => b.userId === currentUser.username);
+            
+            // Sort by time (newest first)
+            bets.sort((a, b) => new Date(b.time) - new Date(a.time));
+            
+            displayBets(bets);
+        }
+        
+        // Display bets in the table
+        function displayBets(bets) {
+            const tbody = document.getElementById('betsBody');
+            const noBets = document.getElementById('noBets');
+            
+            tbody.innerHTML = '';
+            
+            if (bets.length === 0) {
+                noBets.style.display = 'block';
+                return;
+            }
+            
+            noBets.style.display = 'none';
+            
+            bets.forEach(bet => {
+                const tr = document.createElement('tr');
+                
+                // Format time
+                const betTime = new Date(bet.time);
+                const formattedTime = betTime.toLocaleString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Format amount
+                const formattedAmount = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(bet.betAmount);
+                
+                const formattedTotal = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(bet.totalAmount);
+                
+                // Set status class
+                const statusClass = bet.status || 'pending';
+                
+                // Create numbers display
+                const numbersDisplay = document.createElement('div');
+                numbersDisplay.className = 'bet-numbers';
+                
+                bet.numbers.forEach(number => {
+                    const numSpan = document.createElement('span');
+                    numSpan.className = 'bet-number';
+                    numSpan.textContent = number;
+                    numbersDisplay.appendChild(numSpan);
+                });
+                
+                tr.innerHTML = `
+                    <td>${bet.id}</td>
+                    <td>${bet.game}</td>
+                    <td>${formattedTime}</td>
+                    <td></td> <!-- Numbers will be inserted below -->
+                    <td>${formattedAmount}</td>
+                    <td>${formattedTotal}</td>
+                    <td><span class="status ${statusClass}">${statusClass}</span></td>
+                    <td>${bet.resultTime || 'N/A'}</td>
+                `;
+                
+                // Insert numbers display in the correct cell
+                const numbersCell = tr.cells[3];
+                numbersCell.appendChild(numbersDisplay);
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Filter bets
+        function filterBets() {
+            const gameFilter = document.getElementById('gameFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            let bets = JSON.parse(localStorage.getItem('bets')) || [];
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            // Filter by user first
+            bets = bets.filter(b => b.userId === currentUser.username);
+            
+            // Apply game filter
+            if (gameFilter !== 'all') {
+                bets = bets.filter(b => b.game.includes(gameFilter));
+            }
+            
+            // Apply status filter
+            if (statusFilter !== 'all') {
+                bets = bets.filter(b => (b.status || 'pending') === statusFilter);
+            }
+            
+            // Apply date filter
+            if (dateFilter) {
+                const filterDate = new Date(dateFilter);
+                bets = bets.filter(b => {
+                    const betDate = new Date(b.time);
+                    return betDate.toDateString() === filterDate.toDateString();
+                });
+            }
+            
+            displayBets(bets);
+        }
+        
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('gameFilter').value = 'all';
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('dateFilter').value = '';
+            loadBets();
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.toggle('shifted');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            if (currentUser && currentUser.deviceId) {
+                let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+                const userIndex = users.findIndex(u => u.username === currentUser.username);
+                
+                if (userIndex !== -1 && users[userIndex].devices) {
+                    users[userIndex].devices = users[userIndex].devices.filter(
+                        d => d.id !== currentUser.deviceId
+                    );
+                    localStorage.setItem('mumbaiBookUsers', JSON.stringify(users));
+                }
+            }
+            
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Book - Deposit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Header Styles (same as dashboard) */
+        .header {
+            background: linear-gradient(to right, #0a2463, #3e92cc);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #d4af37;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #0a2463;
+        }
+        
+        .wallet-info {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wallet-amount {
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        /* Sidebar Styles (same as dashboard) */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f0f0f0;
+            color: #0a2463;
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .menu-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.open + .main-content {
+            margin-left: 250px;
+        }
+        
+        .page-title {
+            color: #0a2463;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4af37;
+        }
+        
+        /* Deposit Form Styles */
+        .deposit-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .payment-method {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .payment-method.active {
+            border-color: #d4af37;
+            background-color: #f9f9f9;
+        }
+        
+        .payment-method img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus, 
+        .form-group textarea:focus {
+            border-color: #3e92cc;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(62, 146, 204, 0.2);
+        }
+        
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            border-color: #3e92cc;
+        }
+        
+        .file-upload input {
+            display: none;
+        }
+        
+        .file-upload-icon {
+            font-size: 40px;
+            color: #3e92cc;
+            margin-bottom: 10px;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #777;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background-color: #d4af37;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background-color: #c9a227;
+        }
+        
+        .instructions {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3e92cc;
+        }
+        
+        .instructions h3 {
+            color: #0a2463;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .payment-methods {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                ☰
+            </div>
+            <div class="logo-icon">MB</div>
+            <h3>Mumbai Book</h3>
+        </div>
+        <div class="wallet-info">
+            <span>Wallet:</span>
+            <span class="wallet-amount" id="walletAmount">₹0</span>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li class="active" onclick="navigateTo('deposit')">
+                <span>💳</span> Deposit
+            </li>
+            <li onclick="navigateTo('withdraw')">
+                <span>💰</span> Withdraw
+            </li>
+            <li onclick="navigateTo('rules')">
+                <span>📜</span> Rules
+            </li>
+            <li onclick="window.location.href='results.html'">
+                <span>🎲</span> Results
+            </li>
+            <li onclick="navigateTo('transactions')">
+                <span>📊</span> Transactions
+            </li>
+            <li onclick="navigateTo('bets')">
+                <span>🎯</span> My Bets
+            </li>
+            <li onclick="navigateTo('complaint')">
+                <span>✉️</span> Complaint
+            </li>
+            <li onclick="logout()">
+                <span>🚪</span> Logout
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <h2 class="page-title">Deposit Funds</h2>
+        
+        <div class="deposit-container">
+            <div class="instructions">
+                <h3>Deposit Instructions:</h3>
+                <ol>
+                    <li>Scan the QR code or use the UPI ID to make payment</li>
+                    <li>Enter the exact amount you deposited</li>
+                    <li>Provide the UTR/Transaction ID from your bank/payment app</li>
+                    <li>Upload the payment screenshot for verification</li>
+                    <li>Submit the form - your deposit will be processed within 15-30 minutes</li>
+                </ol>
+            </div>
+            
+            <div class="payment-methods">
+                <div class="payment-method active" id="upiMethod">
+                    <h3>UPI Payment</h3>
+                    <!-- Replace with your actual QR code -->
+                    <img src="https://via.placeholder.com/200x200.png?text=Scan+QR+Code" alt="UPI QR Code">
+                    <p>Scan this QR code to pay via any UPI app</p>
+                    <p><strong>UPI ID:</strong> mumbaibook@upi</p>
+                </div>
+                
+                <div class="payment-method" id="cardMethod">
+                    <h3>Card Payment</h3>
+                    <div style="font-size: 40px;">💳</div>
+                    <p>Credit/Debit Card Payment</p>
+                    <p>(Coming Soon)</p>
+                </div>
+            </div>
+            
+            <form id="depositForm" onsubmit="submitDeposit(event)">
+                <div class="form-group">
+                    <label for="amount">Deposit Amount (₹)</label>
+                    <input type="number" id="amount" placeholder="Enter the amount you deposited" required min="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="utr">UTR/Transaction ID</label>
+                    <input type="text" id="utr" placeholder="Enter the UTR/Transaction ID from your bank" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Payment Screenshot</label>
+                    <div class="file-upload" onclick="document.getElementById('screenshot').click()">
+                        <div class="file-upload-icon">📁</div>
+                        <div>Click to upload screenshot</div>
+                        <div class="file-name" id="fileName">No file selected</div>
+                        <input type="file" id="screenshot" accept="image/*" onchange="handleFileSelect()">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Additional Notes (Optional)</label>
+                    <textarea id="notes" rows="3" placeholder="Any additional information about your deposit"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit Deposit Request</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update wallet amount
+            document.getElementById('walletAmount').textContent = `₹${currentUser.walletBalance || 0}`;
+        });
+        
+        // Handle file selection and convert to base64
+        function handleFileSelect() {
+            const fileInput = document.getElementById('screenshot');
+            const fileNameDisplay = document.getElementById('fileName');
+            
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'No file selected';
+            }
+        }
+
+        // Convert file to base64
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Submit deposit form
+        async function submitDeposit(event) {
+            event.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('amount').value);
+            const utr = document.getElementById('utr').value;
+            const screenshot = document.getElementById('screenshot').files[0];
+            const notes = document.getElementById('notes').value;
+            
+            if (amount < 100) {
+                alert('Minimum deposit amount is ₹100');
+                return;
+            }
+            
+            if (!utr) {
+                alert('Please enter UTR/Transaction ID');
+                return;
+            }
+            
+            if (!screenshot) {
+                alert('Please upload payment screenshot');
+                return;
+            }
+
+            try {
+                // Convert screenshot to base64
+                const screenshotBase64 = await getBase64(screenshot);
+                
+                // Generate reference ID
+                const refId = 'DEP' + Date.now().toString().slice(-8);
+                
+                // Get current user
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                
+                // Create transaction object
+                const transaction = {
+                    id: refId,
+                    type: 'deposit',
+                    amount: amount,
+                    utr: utr,
+                    status: 'initiated',
+                    date: new Date().toISOString(),
+                    userId: currentUser.username,
+                    screenshot: screenshotBase64,  // Store base64 string
+                    notes: notes
+                };
+                
+                // Save transaction to localStorage
+                let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                
+                alert(`Deposit request submitted successfully!\nReference ID: ${refId}\nYour funds will be added after verification.`);
+                
+                // Reset form
+                event.target.reset();
+                document.getElementById('fileName').textContent = 'No file selected';
+                
+                // Redirect to transactions page
+                navigateTo('transactions');
+            } catch (error) {
+                alert('Error processing screenshot. Please try again.');
+                console.error('Error:', error);
+            }
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.toggle('shifted');
+            }
+        }
+        
+        // Navigation function
+        function navigateTo(page) {
+            window.location.href = `${page}.html`;
+        }
+        
+        // Logout function
+        function logout() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            if (currentUser && currentUser.deviceId) {
+                let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+                const userIndex = users.findIndex(u => u.username === currentUser.username);
+                
+                if (userIndex !== -1 && users[userIndex].devices) {
+                    users[userIndex].devices = users[userIndex].devices.filter(
+                        d => d.id !== currentUser.deviceId
+                    );
+                    localStorage.setItem('mumbaiBookUsers', JSON.stringify(users));
+                }
+            }
+            
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

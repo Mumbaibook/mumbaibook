@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Results - Mumbai Book</title>
+    <style>
+        /* Include your existing common styles */
+        
+        .results-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .upcoming-results {
+            background: linear-gradient(135deg, #0a2463 0%, #1e3a8a 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .upcoming-title {
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upcoming-title::before {
+            content: '🎯';
+        }
+
+        .upcoming-game {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f5f5f5;
+            color: #333; /* Adding explicit text color */
+        }
+
+        .upcoming-game strong {
+            font-size: 1.1em;
+            color: #0a2463; /* Distinctive color for game name */
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .upcoming-game div {
+            color: #555; /* Color for time text */
+        }
+
+        .upcoming-game.pending {
+            border-left: 4px solid #ffd700;
+        }
+
+        .upcoming-game.waiting {
+            border-left: 4px solid #ff9800;
+        }
+
+        .upcoming-game.published {
+            border-left: 4px solid #4caf50;
+        }
+
+        .timer {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .published .timer {
+            background: #4caf50;
+            color: white;
+        }
+
+        .waiting .timer {
+            background: #ff9800;
+            color: white;
+        }
+
+        .pending .timer {
+            background: #ffd700;
+            color: #333; /* Dark color for better contrast on yellow */
+        }
+
+        .timer::before {
+            content: '⏰';
+        }
+
+        .results-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #0a2463;
+            font-weight: 500;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:focus {
+            border-color: #0a2463;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(10, 36, 99, 0.1);
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .game-info {
+            flex: 1;
+        }
+
+        .game-name {
+            font-size: 1.2rem;
+            color: #0a2463;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .game-date {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .game-time {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 20px;
+            color: #0a2463;
+            font-weight: 500;
+        }
+
+        .result-label {
+            color: #64748b;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .result-numbers {
+            display: flex;
+            gap: 5px;
+        }
+
+        .result-number {
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .super-number {
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            box-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .results-container {
+                padding: 10px;
+            }
+
+            .filter-group {
+                min-width: 100%;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your header and sidebar -->
+
+    <div class="main-content" id="mainContent">
+        <h2 class="page-title">Game Results</h2>
+
+        <div class="results-container">
+            <div class="upcoming-results">
+                <h3 class="upcoming-title">Next Results</h3>
+                <div id="upcomingResults">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <div class="results-filters">
+                <div class="filter-group">
+                    <label>Select Game</label>
+                    <select id="gameFilter">
+                        <option value="all">All Games</option>
+                        <option value="Game 1">Game 1</option>
+                        <option value="Game 2">Game 2</option>
+                        <option value="Game 3">Game 3</option>
+                        <option value="Game 4">Game 4</option>
+                        <option value="Game 5">Game 5</option>
+                        <option value="Game 6">Game 6</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Select Date</label>
+                    <select id="dateFilter">
+                        <!-- Last 5 days will be populated dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="results-grid" id="resultsGrid">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GAME_CONFIGS = {
+            'Game 1': { time: '12:00 PM', range: 99 },
+            'Game 2': { time: '02:00 PM', range: 99 },
+            'Game 3': { time: '04:00 PM', range: 19 },
+            'Game 4': { time: '06:00 PM', range: 19 },
+            'Game 5': { time: '08:00 PM', range: 19 },
+            'Game 6': { time: '10:00 PM', range: 99 }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update wallet amount if exists
+            const walletElement = document.getElementById('walletAmount');
+            if (walletElement) {
+                walletElement.textContent = `₹${currentUser.walletBalance || 0}`;
+            }
+
+            populateDateFilter();
+            loadResults();
+            showUpcomingResults();
+            setupEventListeners();
+        });
+
+        function populateDateFilter() {
+            const select = document.getElementById('dateFilter');
+            const today = new Date();
+            
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const option = document.createElement('option');
+                option.value = date.toISOString().split('T')[0];
+                option.textContent = date.toLocaleDateString();
+                select.appendChild(option);
+            }
+        }
+
+        function loadResults() {
+            const results = JSON.parse(localStorage.getItem('gameResults')) || [];
+            const gameFilter = document.getElementById('gameFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            let filteredResults = results;
+            
+            if (gameFilter !== 'all') {
+                filteredResults = filteredResults.filter(r => r.game === gameFilter);
+            }
+            
+            if (dateFilter) {
+                filteredResults = filteredResults.filter(r => r.date.startsWith(dateFilter));
+            }
+
+            displayResults(filteredResults);
+        }
+
+        function displayResults(results) {
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '';
+
+            if (results.length === 0) {
+                grid.innerHTML = '<div class="no-results">No results found</div>';
+                return;
+            }
+
+            // Sort results by date and time
+            results.sort((a, b) => {
+                const dateA = new Date(a.date + ' ' + a.time);
+                const dateB = new Date(b.date + ' ' + b.time);
+                return dateB - dateA;
+            });
+
+            results.forEach(result => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                
+                card.innerHTML = `
+                    <div class="result-header">
+                        <div class="game-info">
+                            <div class="game-name">${result.game}</div>
+                            <div class="game-period">${result.period}</div>
+                            <div class="game-date">${new Date(result.date).toLocaleDateString()}</div>
+                        </div>
+                        <div class="game-time">Results at: ${result.time}</div>
+                    </div>
+                    <div class="result-numbers">
+                        ${result.numbers.map(n => `
+                            <span class="result-number">${n.toString().padStart(2, '0')}</span>
+                        `).join('')}
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function showUpcomingResults() {
+            const container = document.getElementById('upcomingResults');
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            // Get today's results
+            const allResults = JSON.parse(localStorage.getItem('gameResults')) || [];
+            const todayResults = allResults.filter(r => r.date === today);
+            
+            let html = '';
+            // Get all games for today
+            for (const [game, config] of Object.entries(GAME_CONFIGS)) {
+                const [hours, minutes] = config.time.split(':');
+                const meridian = config.time.split(' ')[1];
+                let hrs = parseInt(hours);
+                if (meridian === 'PM' && hrs !== 12) hrs += 12;
+                if (meridian === 'AM' && hrs === 12) hrs = 0;
+                
+                const resultTime = new Date(now);
+                resultTime.setHours(hrs, parseInt(minutes), 0, 0);
+                
+                const timeLeft = resultTime - now;
+                
+                // Find if result is published for this game
+                const gameResult = todayResults.find(r => r.game === game);
+                
+                let status = "Pending";
+                let statusClass = "pending";
+                let numbersHtml = '';
+                
+                if (timeLeft < 0) {
+                    // If past game time
+                    if (gameResult) {
+                        // Show results for 5 minutes after publishing
+                        const publishedAt = new Date(gameResult.publishedAt);
+                        const timeSincePublish = now - publishedAt;
+                        const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+                        
+                        if (timeSincePublish < fiveMinutes) {
+                            status = "Published";
+                            statusClass = "published";
+                            numbersHtml = `
+                                <div class="result-numbers">
+                                    ${gameResult.numbers.map(n => `
+                                        <span class="result-number">${n.toString().padStart(2, '0')}</span>
+                                    `).join('')}
+                                </div>
+                            `;
+                        } else {
+                            status = "Waiting for results";
+                            statusClass = "waiting";
+                        }
+                    } else {
+                        status = "Waiting for results";
+                        statusClass = "waiting";
+                    }
+                }
+                
+                html += `
+                    <div class="upcoming-game ${statusClass}">
+                        <div>
+                            <strong>${game}</strong>
+                            <div>Results at ${config.time}</div>
+                        </div>
+                        ${numbersHtml}
+                        <div class="timer">${status}</div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('gameFilter').addEventListener('change', loadResults);
+            document.getElementById('dateFilter').addEventListener('change', loadResults);
+            
+            // Update timers every 10 seconds instead of every minute
+            setInterval(showUpcomingResults, 10000);
+        }
+
+        // Update game filter
+        function populateGameFilter() {
+            const select = document.getElementById('gameFilter');
+            select.innerHTML = `
+                <option value="all">All Games</option>
+                ${Object.keys(GAME_CONFIGS).map(game => 
+                    `<option value="${game}">${game}</option>`
+                ).join('')}
+            `;
+        }
+
+        // Filter results
+        function filterResults() {
+            const gameFilter = document.getElementById('gameFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            let results = JSON.parse(localStorage.getItem('gameResults')) || [];
+            
+            if (gameFilter !== 'all') {
+                results = results.filter(r => r.game === gameFilter);
+            }
+            
+            if (dateFilter) {
+                results = results.filter(r => r.date === dateFilter);
+            }
+            
+            displayResults(results);
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

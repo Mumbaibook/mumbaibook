@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Book - Dashboard</title>
+    <script src="config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, #0a2463, #3e92cc);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #d4af37;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #0a2463;
+        }
+        
+        .wallet-info {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wallet-amount {
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f0f0f0;
+            color: #0a2463;
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .menu-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.open + .main-content {
+            margin-left: 250px;
+        }
+        
+        .date-time {
+            text-align: right;
+            margin-bottom: 20px;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .dashboard-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #eee;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            border-color: #d4af37;
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background-color: #f0f7ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #0a2463;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #0a2463;
+        }
+        
+        .card-desc {
+            font-size: 13px;
+            color: #777;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 0;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                ☰
+            </div>
+            <div class="logo-icon">MB</div>
+            <h3>Mumbai Book</h3>
+        </div>
+        <div class="wallet-info">
+            <span>Wallet:</span>
+            <span class="wallet-amount" id="walletAmount">₹0</span>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li onclick="window.location.href='deposit.html'">
+                <span>💳</span> Deposit
+            </li>
+            <li onclick="window.location.href='withdraw.html'">
+                <span>💰</span> Withdraw
+            </li>
+            <li onclick="window.location.href='rules.html'">
+                <span>📜</span> Rules
+            </li>
+            <li onclick="window.location.href='results.html'">
+                <span>🎲</span> Results
+            </li>
+            <li onclick="window.location.href='transactions.html'">
+                <span>📊</span> Transactions
+            </li>
+            <li onclick="window.location.href='bets.html'">
+                <span>🎯</span> My Bets
+            </li>
+            <li onclick="window.location.href='complaint.html'">
+                <span>✉️</span> Complaint
+            </li>
+            <li onclick="logout()">
+                <span>🚪</span> Logout
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="date-time" id="dateTime">
+            Loading date and time...
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card" onclick="window.location.href='game1.html'">
+                <div class="card-icon">🎰</div>
+                <h4 class="card-title">Game 1</h4>
+                <p class="card-desc">Place your bets for Game 1</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='game2.html'">
+                <div class="card-icon">🎲</div>
+                <h4 class="card-title">Game 2</h4>
+                <p class="card-desc">Place your bets for Game 2</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='game3.html'">
+                <div class="card-icon">♠️</div>
+                <h4 class="card-title">Game 3</h4>
+                <p class="card-desc">Place your bets for Game 3</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='game4.html'">
+                <div class="card-icon">♦️</div>
+                <h4 class="card-title">Game 4</h4>
+                <p class="card-desc">Place your bets for Game 4</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='game5.html'">
+                <div class="card-icon">🎯</div>
+                <h4 class="card-title">Game 5</h4>
+                <p class="card-desc">Place your bets for Game 5</p>
+            </div>
+            
+            <div class="dashboard-card" onclick="window.location.href='game6.html'">
+                <div class="card-icon">🏆</div>
+                <h4 class="card-title">Game 6</h4>
+                <p class="card-desc">Place your bets for Game 6</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Add this function at the top of your script
+        function validateSession() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                return false;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.username === currentUser.username);
+            
+            if (!user) {
+                return false;
+            }
+
+            // Update wallet balance in session
+            currentUser.walletBalance = user.walletBalance || 0;
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            return true;
+        }
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!validateSession()) {
+                alert('Session expired. Please login again.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update wallet amount
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            document.getElementById('walletAmount').textContent = `₹${currentUser.walletBalance || 0}`;
+            
+            // Update date and time
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        });
+        
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('dateTime').textContent = now.toLocaleDateString('en-IN', options);
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.toggle('shifted');
+            }
+        }
+        
+        // Modify logout function
+        function logout() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (currentUser) {
+                let users = JSON.parse(localStorage.getItem('users')) || [];
+                const userIndex = users.findIndex(u => u.username === currentUser.username);
+                
+                if (userIndex !== -1) {
+                    // Remove the current device
+                    users[userIndex].devices = users[userIndex].devices.filter(
+                        d => d.id !== currentUser.deviceId
+                    );
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            }
+            
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        
+    </script>
+</body>
+</html>

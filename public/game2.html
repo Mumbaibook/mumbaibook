@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Book - Game 2 (12AM-12PM)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, #0a2463, #3e92cc);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #d4af37;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #0a2463;
+        }
+        
+        .wallet-info {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wallet-amount {
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f0f0f0;
+            color: #0a2463;
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .menu-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.open + .main-content {
+            margin-left: 250px;
+        }
+        
+        .page-title {
+            color: #0a2463;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4af37;
+        }
+        
+        /* Game Info Styles */
+        .game-info {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .game-timing {
+            background-color: #d4af37;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        /* Numbers Grid Styles */
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .number-box {
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .number-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .number-box.selected {
+            background-color: #0a2463;
+            color: white;
+            border-color: #0a2463;
+        }
+        
+        /* Bet Controls Styles */
+        .bet-controls {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .bet-amount {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .bet-amount input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .selected-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+        
+        .selected-number {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .selected-number .remove {
+            cursor: pointer;
+            color: #dc3545;
+        }
+        
+        .total-bet {
+            font-weight: bold;
+            color: #0a2463;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background-color: #d4af37;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background-color: #c9a227;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        /* Game Rules Styles */
+        .game-rules {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .game-rules h3 {
+            color: #0a2463;
+            margin-bottom: 10px;
+        }
+        
+        .game-rules ul {
+            padding-left: 20px;
+        }
+        
+        .game-rules li {
+            margin-bottom: 8px;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 0;
+            }
+            
+            .numbers-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            .game-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                ☰
+            </div>
+            <div class="logo-icon">MB</div>
+            <h3>Mumbai Book</h3>
+        </div>
+        <div class="wallet-info">
+            <span>Wallet:</span>
+            <span class="wallet-amount" id="walletAmount">₹0</span>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li onclick="window.location.href='deposit.html'">
+                <span>💳</span> Deposit
+            </li>
+            <li onclick="window.location.href='withdraw.html'">
+                <span>💰</span> Withdraw
+            </li>
+            <li onclick="window.location.href='rules.html'">
+                <span>📜</span> Rules
+            </li>
+            <li onclick="window.location.href='results.html'">
+                <span>🎲</span> Results
+            </li>
+            <li onclick="window.location.href='transactions.html'">
+                <span>📊</span> Transactions
+            </li>
+            <li onclick="window.location.href='bets.html'">
+                <span>🎯</span> My Bets
+            </li>
+            <li onclick="window.location.href='complaint.html'">
+                <span>✉️</span> Complaint
+            </li>
+            <li onclick="logout()">
+                <span>🚪</span> Logout
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <h2 class="page-title">Game 2 (12AM - 12PM)</h2>
+        
+        <div class="game-info">
+            <div>
+                <h3>Select Numbers (0-99)</h3>
+                <p>Choose any numbers to place your bet</p>
+            </div>
+            <div class="game-timing">
+                Daily: 12:00 AM - 12:00 PM (Results at 2:00 PM)
+            </div>
+        </div>
+        
+        <div class="numbers-grid" id="numbersGrid">
+            <!-- Numbers will be generated by JavaScript -->
+        </div>
+        
+        <div class="bet-controls">
+            <div class="bet-amount">
+                <label for="betAmount">Bet Amount (₹):</label>
+                <input type="number" id="betAmount" min="100" value="100" placeholder="Enter bet amount">
+            </div>
+            
+            <div class="selected-numbers" id="selectedNumbers">
+                <!-- Selected numbers will appear here -->
+            </div>
+            
+            <div class="total-bet" id="totalBet">
+                Total Bet: ₹0
+            </div>
+            
+            <button class="btn btn-primary" id="placeBetBtn" disabled onclick="placeBet()">Place Bet</button>
+        </div>
+        
+        <div class="game-rules">
+            <h3>Game Rules</h3>
+            <ul>
+                <li>Minimum bet amount is ₹100</li>
+                <li>You can select any number of numbers (1-10 numbers per bet)</li>
+                <li>Each selected number will be treated as a separate bet</li>
+                <li>Total bet amount = bet amount × number of selected numbers</li>
+                <li>Game results will be declared at 2:00 PM daily</li>
+                <li>Winning amount will be credited to your wallet automatically</li>
+                <li>Game is open for betting from 12:00 AM to 12:00 PM only</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Session validation function
+        function validateSession() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                return false;
+            }
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.username === currentUser.username);
+            if (!user) {
+                return false;
+            }
+            // Update wallet balance in session
+            currentUser.walletBalance = user.walletBalance || 0;
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!validateSession()) {
+                alert('Session expired. Please login again.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Update wallet amount
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            document.getElementById('walletAmount').textContent = `₹${currentUser.walletBalance || 0}`;
+            
+            // Generate numbers grid
+            generateNumbersGrid();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Check game availability (12AM to 12PM)
+            checkGameAvailability();
+        });
+        
+        // Generate numbers from 0 to 99
+        function generateNumbersGrid() {
+            const numbersGrid = document.getElementById('numbersGrid');
+            numbersGrid.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const numberBox = document.createElement('div');
+                numberBox.className = 'number-box';
+                numberBox.textContent = i.toString().padStart(2, '0');
+                numberBox.onclick = function() { toggleNumberSelection(this); };
+                
+                // Add random padding for visual variety
+                const randomPadding = Math.floor(Math.random() * 10) + 5;
+                numberBox.style.padding = `${randomPadding}px`;
+                
+                numbersGrid.appendChild(numberBox);
+            }
+        }
+        
+        // Toggle number selection
+        function toggleNumberSelection(element) {
+            element.classList.toggle('selected');
+            updateSelectedNumbers();
+            calculateTotalBet();
+            updatePlaceBetButton();
+        }
+        
+        // Update selected numbers display
+        function updateSelectedNumbers() {
+            const selectedNumbersContainer = document.getElementById('selectedNumbers');
+            selectedNumbersContainer.innerHTML = '';
+            
+            const selectedNumbers = document.querySelectorAll('.number-box.selected');
+            
+            selectedNumbers.forEach(numberBox => {
+                const selectedNumber = document.createElement('div');
+                selectedNumber.className = 'selected-number';
+                selectedNumber.innerHTML = `
+                    ${numberBox.textContent}
+                    <span class="remove" onclick="removeSelectedNumber('${numberBox.textContent}')">×</span>
+                `;
+                selectedNumbersContainer.appendChild(selectedNumber);
+            });
+        }
+        
+        // Remove selected number
+        function removeSelectedNumber(number) {
+            const numberBoxes = document.querySelectorAll('.number-box');
+            numberBoxes.forEach(box => {
+                if (box.textContent === number) {
+                    box.classList.remove('selected');
+                }
+            });
+            
+            updateSelectedNumbers();
+            calculateTotalBet();
+            updatePlaceBetButton();
+        }
+        
+        // Calculate total bet amount
+        function calculateTotalBet() {
+            const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
+            const selectedCount = document.querySelectorAll('.number-box.selected').length;
+            const totalBet = betAmount * selectedCount;
+            
+            document.getElementById('totalBet').textContent = `Total Bet: ₹${totalBet}`;
+            return totalBet;
+        }
+        
+        // Update place bet button state
+        function updatePlaceBetButton() {
+            const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
+            const selectedCount = document.querySelectorAll('.number-box.selected').length;
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            const balance = currentUser.walletBalance || 0;
+            const totalBet = betAmount * selectedCount;
+            
+            const btn = document.getElementById('placeBetBtn');
+            
+            if (selectedCount === 0) {
+                btn.disabled = true;
+                return;
+            }
+            
+            if (betAmount < 100) {
+                btn.disabled = true;
+                return;
+            }
+            
+            if (totalBet > balance) {
+                btn.disabled = true;
+                return;
+            }
+            
+            btn.disabled = false;
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('betAmount').addEventListener('input', function() {
+                calculateTotalBet();
+                updatePlaceBetButton();
+            });
+        }
+        
+        // Check if game is available (12AM to 12PM)
+        function checkGameAvailability() {
+            const now = new Date();
+            const hours = now.getHours();
+            const isGameTime = (hours >= 0 && hours < 12); // 12AM to 12PM
+            
+            if (!isGameTime) {
+                disableGame("Game is only available from 12:00 AM to 12:00 PM daily");
+            }
+        }
+        
+        // Disable game with message
+        function disableGame(message) {
+            const numberBoxes = document.querySelectorAll('.number-box');
+            numberBoxes.forEach(box => {
+                box.style.opacity = '0.5';
+                box.style.cursor = 'not-allowed';
+                box.onclick = null;
+            });
+            
+            document.getElementById('betAmount').disabled = true;
+            document.getElementById('placeBetBtn').disabled = true;
+            
+            alert(message);
+        }
+        
+        // Place bet function
+        function placeBet() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            const betAmount = parseFloat(document.getElementById('betAmount').value);
+            const selectedNumbers = Array.from(document.querySelectorAll('.number-box.selected'))
+                .map(box => box.textContent);
+            const totalBet = betAmount * selectedNumbers.length;
+            
+            if (selectedNumbers.length === 0) {
+                alert('Please select at least one number');
+                return;
+            }
+            
+            if (betAmount < 100) {
+                alert('Minimum bet amount is ₹100');
+                return;
+            }
+            
+            if (totalBet > currentUser.walletBalance) {
+                alert('Insufficient balance for this bet');
+                return;
+            }
+            
+            // Create bet object
+            const betId = 'BET' + Date.now().toString().slice(-8);
+            const betTime = new Date().toISOString();
+            
+            const bet = {
+                id: betId,
+                game: 'Game 2 (12AM-12PM)',
+                numbers: selectedNumbers,
+                betAmount: betAmount,
+                totalAmount: totalBet,
+                time: betTime,
+                status: 'pending',
+                userId: currentUser.username,
+                resultTime: '2:00 PM'
+            };
+            
+            // Save bet to localStorage
+            let bets = JSON.parse(localStorage.getItem('bets')) || [];
+            bets.push(bet);
+            localStorage.setItem('bets', JSON.stringify(bets));
+            
+            // Deduct amount from wallet
+            let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+            let userIndex = users.findIndex(u => u.username === currentUser.username);
+            
+            if (userIndex !== -1) {
+                users[userIndex].walletBalance -= totalBet;
+                localStorage.setItem('mumbaiBookUsers', JSON.stringify(users));
+                
+                // Update current user in session
+                currentUser.walletBalance = users[userIndex].walletBalance;
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                document.getElementById('walletAmount').textContent = `₹${currentUser.walletBalance}`;
+            }
+            
+            // Reset selection
+            document.querySelectorAll('.number-box.selected').forEach(box => {
+                box.classList.remove('selected');
+            });
+            document.getElementById('selectedNumbers').innerHTML = '';
+            document.getElementById('totalBet').textContent = 'Total Bet: ₹0';
+            document.getElementById('betAmount').value = '100';
+            document.getElementById('placeBetBtn').disabled = true;
+            
+            alert('Bet placed successfully! You can view your bets in "My Bets" section. Results will be declared at 2:00 PM.');
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.toggle('shifted');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

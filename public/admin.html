@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Book - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, #0a2463, #3e92cc);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #d4af37;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #0a2463;
+        }
+        
+        .admin-info {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f0f0f0;
+            color: #0a2463;
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .menu-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.open + .main-content {
+            margin-left: 250px;
+        }
+        
+        .page-title {
+            color: #0a2463;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4af37;
+        }
+        
+        /* Admin Panel Tabs */
+        .admin-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .admin-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .admin-tab.active {
+            border-bottom-color: #d4af37;
+            color: #0a2463;
+            font-weight: bold;
+        }
+        
+        .admin-tab-content {
+            display: none;
+        }
+        
+        .admin-tab-content.active {
+            display: block;
+        }
+        
+        /* Tables Styles */
+        .admin-table-container {
+            max-width: 100%;
+            overflow-x: auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f9f9f9;
+            color: #0a2463;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status.initiated {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.failed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        
+        .approve-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls select, 
+        .filter-controls input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .filter-controls button {
+            padding: 8px 15px;
+            background-color: #0a2463;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .filter-controls button:hover {
+            background-color: #3e92cc;
+        }
+        
+        /* User Wallet Management */
+        .wallet-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .wallet-controls input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            flex: 1;
+        }
+        
+        .wallet-controls button {
+            padding: 8px 15px;
+            background-color: #d4af37;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            margin-bottom: 15px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 0;
+            }
+            
+            .admin-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .admin-tab {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Add these styles to your existing CSS */
+        .thumbnail-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 1px solid #ddd;
+        }
+
+        .thumbnail-image:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .close:hover {
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                ☰
+            </div>
+            <div class="logo-icon">MB</div>
+            <h3>Mumbai Book - Admin Panel</h3>
+        </div>
+        <div class="admin-info">
+            <span>Admin</span>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li class="active" onclick="switchTab('users')">
+                <span>👥</span> User Management
+            </li>
+            <li onclick="switchTab('deposits')">
+                <span>💳</span> Deposit Requests
+            </li>
+            <li onclick="switchTab('withdrawals')">
+                <span>💰</span> Withdrawal Requests
+            </li>
+            <li onclick="switchTab('transactions')">
+                <span>📊</span> All Transactions
+            </li>
+            <li onclick="switchTab('bets')">
+                <span>🎯</span> All Bets
+            </li>
+            <li onclick="switchTab('results')">
+                <span>🎲</span> Results Management
+            </li>
+            <li onclick="logout()">
+                <span>🚪</span> Logout
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="admin-tabs">
+            <div class="admin-tab active" id="usersTab" onclick="switchTab('users')">User Management</div>
+            <div class="admin-tab" id="depositsTab" onclick="switchTab('deposits')">Deposit Requests</div>
+            <div class="admin-tab" id="withdrawalsTab" onclick="switchTab('withdrawals')">Withdrawal Requests</div>
+            <div class="admin-tab" id="transactionsTab" onclick="switchTab('transactions')">All Transactions</div>
+            <div class="admin-tab" id="betsTab" onclick="switchTab('bets')">All Bets</div>
+            <div class="admin-tab" id="resultsTab" onclick="switchTab('results')">Results Management</div>
+        </div>
+        
+        <!-- Users Tab -->
+        <div class="admin-tab-content active" id="usersContent">
+            <div class="filter-controls">
+                <input type="text" id="userSearch" placeholder="Search by username or mobile" oninput="filterUsers()">
+            </div>
+            
+            <div class="admin-table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Mobile</th>
+                            <th>Wallet Balance</th>
+                            <th>Joined Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Wallet Adjustment Modal -->
+            <div class="modal" id="walletModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="walletModalTitle">Adjust Wallet Balance</h3>
+                        <span class="modal-close" onclick="closeModal('walletModal')">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div id="walletModalContent">
+                            <!-- Content will be filled dynamically -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="closeModal('walletModal')">Cancel</button>
+                        <button onclick="saveWalletChanges()" style="background-color: #d4af37; color: white;">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Deposits Tab -->
+        <div class="admin-tab-content" id="depositsContent">
+            <div class="filter-controls">
+                <select id="depositStatusFilter">
+                    <option value="all">All Statuses</option>
+                    <option value="initiated">Initiated</option>
+                    <option value="success">Successful</option>
+                    <option value="failed">Failed</option>
+                </select>
+                <input type="date" id="depositDateFilter">
+                <button onclick="filterDeposits()">Apply Filters</button>
+                <button onclick="resetDepositFilters()">Reset</button>
+            </div>
+            
+            <div class="admin-table-container">
+                <table id="depositsTable">
+                    <thead>
+                        <tr>
+                            <th>Reference ID</th>
+                            <th>Username</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>UTR/Transaction ID</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositsBody">
+                        <!-- Deposits will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Deposit Details Modal -->
+            <div class="modal" id="depositModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Deposit Details</h3>
+                        <span class="modal-close" onclick="closeModal('depositModal')">&times;</span>
+                    </div>
+                    <div class="modal-body" id="depositModalContent">
+                        <!-- Content will be filled dynamically -->
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="closeModal('depositModal')">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Withdrawals Tab -->
+        <div class="admin-tab-content" id="withdrawalsContent">
+            <div class="filter-controls">
+                <select id="withdrawalStatusFilter">
+                    <option value="all">All Statuses</option>
+                    <option value="initiated">Initiated</option>
+                    <option value="success">Successful</option>
+                    <option value="failed">Failed</option>
+                </select>
+                <input type="date" id="withdrawalDateFilter">
+                <button onclick="filterWithdrawals()">Apply Filters</button>
+                <button onclick="resetWithdrawalFilters()">Reset</button>
+            </div>
+            
+            <div class="admin-table-container">
+                <table id="withdrawalsTable">
+                    <thead>
+                        <tr>
+                            <th>Reference ID</th>
+                            <th>Username</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="withdrawalsBody">
+                        <!-- Withdrawals will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Withdrawal Details Modal -->
+            <div class="modal" id="withdrawalModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Withdrawal Details</h3>
+                        <span class="modal-close" onclick="closeModal('withdrawalModal')">&times;</span>
+                    </div>
+                    <div class="modal-body" id="withdrawalModalContent">
+                        <!-- Content will be filled dynamically -->
+                    </div>
+                    <div class="modal-footer">
+                        <button id="rejectWithdrawalBtn" class="reject-btn" onclick="updateWithdrawalStatus('failed')">Reject</button>
+                        <button id="approveWithdrawalBtn" class="approve-btn" onclick="updateWithdrawalStatus('success')">Approve</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- All Transactions Tab -->
+        <div class="admin-tab-content" id="transactionsContent">
+            <div class="filter-controls">
+                <select id="transactionTypeFilter">
+                    <option value="all">All Types</option>
+                    <option value="deposit">Deposits</option>
+                    <option value="withdraw">Withdrawals</option>
+                </select>
+                <select id="transactionStatusFilter">
+                    <option value="all">All Statuses</option>
+                    <option value="initiated">Initiated</option>
+                    <option value="success">Successful</option>
+                    <option value="failed">Failed</option>
+                </select>
+                <input type="date" id="transactionDateFilter">
+                <button onclick="filterTransactions()">Apply Filters</button>
+                <button onclick="resetTransactionFilters()">Reset</button>
+            </div>
+            
+            <div class="admin-table-container">
+                <table id="transactionsTable">
+                    <thead>
+                        <tr>
+                            <th>Reference ID</th>
+                            <th>Username</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsBody">
+                        <!-- Transactions will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- All Bets Tab -->
+        <div class="admin-tab-content" id="betsContent">
+            <div class="filter-controls">
+                <select id="betGameFilter">
+                    <option value="all">All Games</option>
+                    <option value="Game 1">Game 1</option>
+                    <option value="Game 2">Game 2</option>
+                    <option value="Game 3">Game 3</option>
+                    <option value="Game 4">Game 4</option>
+                    <option value="Game 5">Game 5</option>
+                    <option value="Game 6">Game 6</option>
+                </select>
+                <select id="betStatusFilter">
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="won">Won</option>
+                    <option value="lost">Lost</option>
+                </select>
+                <input type="date" id="betDateFilter">
+                <button onclick="filterBets()">Apply Filters</button>
+                <button onclick="resetBetFilters()">Reset</button>
+            </div>
+            
+            <div class="admin-table-container">
+                <table id="betsTable">
+                    <thead>
+                        <tr>
+                            <th>Bet ID</th>
+                            <th>Username</th>
+                            <th>Game</th>
+                            <th>Numbers</th>
+                            <th>Amount</th>
+                            <th>Total</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="betsBody">
+                        <!-- Bets will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Results Management Tab -->
+        <div class="admin-tab-content" id="resultsContent">
+            <div class="results-management">
+                <h3>Publish Game Results</h3>
+                <div class="form-group">
+                    <label>Select Game</label>
+                    <select id="resultGameSelect" class="form-control">
+                        <option value="">Select Game</option>
+                        <option value="MUMBAI_MORNING">Mumbai Morning (10:00 AM)</option>
+                        <option value="MUMBAI_DAY">Mumbai Day (2:00 PM)</option>
+                        <option value="MUMBAI_EVENING">Mumbai Evening (6:00 PM)</option>
+                        <option value="MUMBAI_NIGHT">Mumbai Night (10:00 PM)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="resultDate" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>Winning Numbers (0-99)</label>
+                    <div class="number-inputs">
+                        <input type="number" min="0" max="99" class="form-control number-input" placeholder="Number 1">
+                        <input type="number" min="0" max="99" class="form-control number-input" placeholder="Number 2">
+                        <input type="number" min="0" max="99" class="form-control number-input" placeholder="Number 3">
+                        <input type="number" min="0" max="99" class="form-control number-input" placeholder="Number 4">
+                        <input type="number" min="0" max="99" class="form-control number-input" placeholder="Number 5">
+                    </div>
+                </div>
+                
+                <button onclick="publishResults()" class="btn-primary">Publish Results</button>
+            </div>
+
+            <div class="published-results">
+                <h3>Published Results</h3>
+                <div class="filter-controls">
+                    <input type="date" id="publishedResultsDateFilter" onchange="loadPublishedResults()">
+                    <button onclick="loadPublishedResults()" class="btn-secondary">Filter</button>
+                </div>
+                <div id="publishedResultsList" class="results-list"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Current transaction being viewed in modal
+        let currentTransaction = null;
+        
+        // Check if admin is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminUser = JSON.parse(sessionStorage.getItem('adminUser'));
+            
+            if (!adminUser || !adminUser.isAdmin) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Load initial data
+            loadUsers();
+            loadDeposits();
+            loadWithdrawals();
+            loadAllTransactions();
+            loadAllBets();
+            initializeResultsTab();
+        });
+        
+        // Switch between admin tabs
+        function switchTab(tabName) {
+            // Update sidebar menu
+            document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.sidebar-menu li[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            // Update top tabs
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.admin-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}Content`).classList.add('active');
+            
+            // If switching to results tab, refresh the results
+            if (tabName === 'results') {
+                loadPublishedResults();
+            }
+        }
+        
+        // Load all users
+        function loadUsers() {
+            let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+            updateUserStats(users);
+            displayUsers(users);
+        }
+
+        function updateUserStats(users) {
+            document.getElementById('totalUsers').textContent = users.length;
+            const totalBalance = users.reduce((sum, user) => sum + (user.walletBalance || 0), 0);
+            document.getElementById('totalBalance').textContent = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR'
+            }).format(totalBalance);
+        }
+        
+        // Display users in table
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersBody');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                
+                const joinedDate = new Date(user.joinedDate || Date.now());
+                const lastLogin = new Date(user.lastLogin || user.joinedDate || Date.now());
+                
+                const formattedBalance = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(user.walletBalance || 0);
+                
+                tr.innerHTML = `
+                    <td>#${user.id || '---'}</td>
+                    <td>${user.username}</td>
+                    <td>${user.mobile}</td>
+                    <td>${formattedBalance}</td>
+                    <td>
+                        <span class="status-badge status-${user.status || 'active'}">
+                            ${user.status || 'Active'}
+                        </span>
+                    </td>
+                    <td>${lastLogin.toLocaleString('en-IN')}</td>
+                    <td>${joinedDate.toLocaleString('en-IN')}</td>
+                    <td class="action-buttons">
+                        <button onclick="showUserDetails('${user.username}')" class="btn-info">
+                            Details
+                        </button>
+                        <button onclick="showWalletModal('${user.username}')" class="btn-primary">
+                            Wallet
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Filter users by search term
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('userStatusFilter').value;
+            
+            let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+            
+            users = users.filter(user => {
+                const matchesSearch = user.username.toLowerCase().includes(searchTerm) || 
+                                    (user.mobile && user.mobile.includes(searchTerm));
+                const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            displayUsers(users);
+        }
+        
+        // Show wallet adjustment modal
+        function showWalletModal(username) {
+            const users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+            const user = users.find(u => u.username === username);
+            
+            if (!user) return;
+            
+            document.getElementById('walletModalTitle').textContent = `Adjust Wallet - ${username}`;
+            
+            const currentBalance = user.walletBalance || 0;
+            const formattedBalance = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR'
+            }).format(currentBalance);
+            
+            document.getElementById('walletModalContent').innerHTML = `
+                <p>Current Balance: <strong>${formattedBalance}</strong></p>
+                <div style="margin: 15px 0;">
+                    <label for="walletAdjustmentType">Action:</label>
+                    <select id="walletAdjustmentType" style="width: 100%; padding: 8px; margin: 5px 0;">
+                        <option value="add">Add Amount</option>
+                        <option value="subtract">Subtract Amount</option>
+                        <option value="set">Set Specific Amount</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="walletAdjustmentAmount">Amount (₹):</label>
+                    <input type="number" id="walletAdjustmentAmount" min="0" style="width: 100%; padding: 8px;">
+                </div>
+                <div style="margin-top: 10px;">
+                    <label for="walletAdjustmentReason">Reason (Optional):</label>
+                    <textarea id="walletAdjustmentReason" style="width: 100%; padding: 8px; margin-top: 5px;"></textarea>
+                </div>
+                <input type="hidden" id="walletAdjustmentUser" value="${username}">
+            `;
+            
+            document.getElementById('walletModal').style.display = 'flex';
+        }
+        
+        // Save wallet changes
+        function saveWalletChanges() {
+            const username = document.getElementById('walletAdjustmentUser').value;
+            const action = document.getElementById('walletAdjustmentType').value;
+            const amount = parseFloat(document.getElementById('walletAdjustmentAmount').value);
+            const reason = document.getElementById('walletAdjustmentReason').value;
+            
+            if (!username || isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+            let userIndex = users.findIndex(u => u.username === username);
+            
+            if (userIndex === -1) {
+                alert('User not found');
+                return;
+            }
+            
+            // Perform the wallet adjustment
+            let newBalance = users[userIndex].walletBalance || 0;
+            
+            switch(action) {
+                case 'add':
+                    newBalance += amount;
+                    break;
+                case 'subtract':
+                    newBalance = Math.max(0, newBalance - amount);
+                    break;
+                case 'set':
+                    newBalance = amount;
+                    break;
+            }
+            
+            // Update user balance
+            users[userIndex].walletBalance = newBalance;
+            localStorage.setItem('mumbaiBookUsers', JSON.stringify(users));
+            
+            // Create transaction record
+            const transactionId = 'ADJ' + Date.now().toString().slice(-8);
+            const transaction = {
+                id: transactionId,
+                type: 'adjustment',
+                amount: amount,
+                action: action,
+                newBalance: newBalance,
+                date: new Date().toISOString(),
+                userId: username,
+                adminReason: reason,
+                status: 'success'
+            };
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // Update session if the user is currently logged in
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (currentUser && currentUser.username === username) {
+                currentUser.walletBalance = newBalance;
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+            
+            alert(`Wallet updated successfully! New balance: ₹${newBalance}`);
+            closeModal('walletModal');
+            loadUsers();
+        }
+        
+        // Load deposit requests
+        function loadDeposits() {
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const deposits = transactions.filter(t => t.type === 'deposit');
+            displayDeposits(deposits);
+        }
+        
+        // Display deposits in table
+        function displayDeposits(deposits) {
+            const tbody = document.getElementById('depositsBody');
+            tbody.innerHTML = '';
+            
+            deposits.forEach(deposit => {
+                const tr = document.createElement('tr');
+                
+                // Format date
+                const depositDate = new Date(deposit.date);
+                const formattedDate = depositDate.toLocaleString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Format amount
+                const formattedAmount = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(deposit.amount);
+                
+                tr.innerHTML = `
+                    <td>${deposit.id}</td>
+                    <td>${deposit.userId}</td>
+                    <td>${formattedAmount}</td>
+                    <td>${formattedDate}</td>
+                    <td>${deposit.utr || 'N/A'}</td>
+                    <td>
+                        ${deposit.status === 'initiated' ? `
+                            <button onclick="updateDepositStatus('${deposit.id}', 'success')" class="action-btn approve">Approve</button>
+                            <button onclick="updateDepositStatus('${deposit.id}', 'failed')" class="action-btn reject">Reject</button>
+                        ` : ''}
+                    </td>
+                    <td><span class="status ${deposit.status}">${deposit.status}</span></td>
+                    <td>
+                        <button onclick="showDepositDetails('${deposit.id}')" class="view-btn">View Details</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Show deposit details modal
+        function showDepositDetails(depositId) {
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const deposit = transactions.find(t => t.id === depositId);
+            
+            if (!deposit) return;
+            
+            currentTransaction = deposit;
+            
+            // Format date
+            const depositDate = new Date(deposit.date);
+            const formattedDate = depositDate.toLocaleString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Format amount
+            const formattedAmount = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR'
+            }).format(deposit.amount);
+            
+            document.getElementById('depositModalContent').innerHTML = `
+                <div class="deposit-details">
+                    <p><strong>Reference ID:</strong> ${deposit.id}</p>
+                    <p><strong>Username:</strong> ${deposit.userId}</p>
+                    <p><strong>Amount:</strong> ${formattedAmount}</p>
+                    <p><strong>Date:</strong> ${formattedDate}</p>
+                    <p><strong>UTR/Transaction ID:</strong> ${deposit.utr || 'N/A'}</p>
+                    <p><strong>Status:</strong> <span class="status ${deposit.status}">${deposit.status}</span></p>
+                    ${deposit.notes ? `<p><strong>Notes:</strong> ${deposit.notes}</p>` : ''}
+                    
+                    ${deposit.screenshot ? `
+                        <div class="screenshot-container">
+                            <p><strong>Payment Screenshot:</strong></p>
+                            <img src="${deposit.screenshot}" alt="Payment Screenshot" 
+                                 style="max-width: 100%; max-height: 400px; cursor: pointer;"
+                                 onclick="openImageInFullscreen(this.src)">
+                        </div>
+                    ` : '<p><strong>Payment Screenshot:</strong> Not provided</p>'}
+                    
+                    ${deposit.status === 'initiated' ? `
+                        <div class="action-buttons" style="margin-top: 20px;">
+                            <button onclick="updateDepositStatus('${deposit.id}', 'failed')" class="reject-btn">Reject</button>
+                            <button onclick="updateDepositStatus('${deposit.id}', 'success')" class="approve-btn">Approve</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('depositModal').style.display = 'flex';
+        }
+        
+        // Update deposit status
+        function updateDepositStatus(status) {
+            if (!currentTransaction) return;
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            let transactionIndex = transactions.findIndex(t => t.id === currentTransaction.id);
+            
+            if (transactionIndex === -1) return;
+            
+            // Update transaction status
+            transactions[transactionIndex].status = status;
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // If approved, add amount to user's wallet
+            if (status === 'success') {
+                let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+                let userIndex = users.findIndex(u => u.username === currentTransaction.userId);
+                
+                if (userIndex !== -1) {
+                    users[userIndex].walletBalance = (users[userIndex].walletBalance || 0) + currentTransaction.amount;
+                    localStorage.setItem('mumbaiBookUsers', JSON.stringify(users));
+                    
+                    // Update session if the user is currently logged in
+                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                    if (currentUser && currentUser.username === currentTransaction.userId) {
+                        currentUser.walletBalance = users[userIndex].walletBalance;
+                        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    }
+                }
+            }
+            
+            alert(`Deposit ${status === 'success' ? 'approved' : 'rejected'} successfully!`);
+            closeModal('depositModal');
+            loadDeposits();
+            loadUsers();
+        }
+        
+        // Filter deposits
+        function filterDeposits() {
+            const statusFilter = document.getElementById('depositStatusFilter').value;
+            const dateFilter = document.getElementById('depositDateFilter').value;
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            let deposits = transactions.filter(t => t.type === 'deposit');
+            
+            // Apply status filter
+            if (statusFilter !== 'all') {
+                deposits = deposits.filter(d => d.status === statusFilter);
+            }
+            
+            // Apply date filter
+            if (dateFilter) {
+                const filterDate = new Date(dateFilter);
+                deposits = deposits.filter(d => {
+                    const depositDate = new Date(d.date);
+                    return depositDate.toDateString() === filterDate.toDateString();
+                });
+            }
+            
+            displayDeposits(deposits);
+        }
+        
+        // Reset deposit filters
+        function resetDepositFilters() {
+            document.getElementById('depositStatusFilter').value = 'all';
+            document.getElementById('depositDateFilter').value = '';
+            loadDeposits();
+        }
+        
+        // Load withdrawal requests
+        function loadWithdrawals() {
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const withdrawals = transactions.filter(t => t.type === 'withdraw');
+            displayWithdrawals(withdrawals);
+        }
+        
+        // Display withdrawals in table
+        function displayWithdrawals(withdrawals) {
+            const tbody = document.getElementById('withdrawalsBody');
+            tbody.innerHTML = '';
+            
+            withdrawals.forEach(withdrawal => {
+                const tr = document.createElement('tr');
+                
+                // Format date
+                const withdrawalDate = new Date(withdrawal.date);
+                const formattedDate = withdrawalDate.toLocaleString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Format amount
+                const formattedAmount = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(withdrawal.amount);
+                
+                tr.innerHTML = `
+                    <td>${withdrawal.id}</td>
+                    <td>${withdrawal.userId}</td>
+                    <td>${formattedAmount}</td>
+                    <td>${formattedDate}</td>
+                    <td><span class="status ${withdrawal.status}">${withdrawal.status}</span></td>
+                    <td>
+                        <button onclick="showWithdrawalDetails('${withdrawal.id}')" style="background-color: #0a2463; color: white;">Details</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Show withdrawal details modal
+        function showWithdrawalDetails(withdrawalId) {
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const withdrawal = transactions.find(t => t.id === withdrawalId);
+            
+            if (!withdrawal) return;
+            
+            currentTransaction = withdrawal;
+            
+            // Format date
+            const withdrawalDate = new Date(withdrawal.date);
+            const formattedDate = withdrawalDate.toLocaleString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Format amounts
+            const formattedAmount = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR'
+            }).format(withdrawal.amount);
+            
+            const formattedNetAmount = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR'
+            }).format(withdrawal.netAmount || withdrawal.amount);
+            
+            const formattedFee = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR'
+            }).format(withdrawal.fee || 0);
+            
+            let bankDetails = '';
+            if (withdrawal.bankDetails) {
+                bankDetails = `
+                    <h4 style="margin-top: 15px;">Bank Details</h4>
+                    <p><strong>Account Name:</strong> ${withdrawal.bankDetails.accountName}</p>
+                    <p><strong>Account Number:</strong> ${withdrawal.bankDetails.accountNumber}</p>
+                    <p><strong>Bank Name:</strong> ${withdrawal.bankDetails.bankName}</p>
+                    <p><strong>IFSC Code:</strong> ${withdrawal.bankDetails.ifsc}</p>
+                    <p><strong>Account Type:</strong> ${withdrawal.bankDetails.accountType}</p>
+                `;
+            }
+            
+            document.getElementById('withdrawalModalContent').innerHTML = `
+                <p><strong>Reference ID:</strong> ${withdrawal.id}</p>
+                <p><strong>Username:</strong> ${withdrawal.userId}</p>
+                <p><strong>Amount:</strong> ${formattedAmount}</p>
+                <p><strong>Fee (2%):</strong> ${formattedFee}</p>
+                <p><strong>Net Amount:</strong> ${formattedNetAmount}</p>
+                <p><strong>Date:</strong> ${formattedDate}</p>
+                <p><strong>Status:</strong> <span class="status ${withdrawal.status}">${withdrawal.status}</span></p>
+                ${withdrawal.notes ? `<p><strong>Notes:</strong> ${withdrawal.notes}</p>` : ''}
+                ${bankDetails}
+            `;
+            
+            // Show/hide action buttons based on status
+            const approveBtn = document.getElementById('approveWithdrawalBtn');
+            const rejectBtn = document.getElementById('rejectWithdrawalBtn');
+            
+            if (withdrawal.status === 'initiated') {
+                approveBtn.style.display = 'inline-block';
+                rejectBtn.style.display = 'inline-block';
+            } else {
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+            }
+            
+            document.getElementById('withdrawalModal').style.display = 'flex';
+        }
+        
+        // Update withdrawal status
+        function updateWithdrawalStatus(status) {
+            if (!currentTransaction) return;
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            let transactionIndex = transactions.findIndex(t => t.id === currentTransaction.id);
+            
+            if (transactionIndex === -1) return;
+            
+            // Update transaction status
+            transactions[transactionIndex].status = status;
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // If rejected, return amount to user's wallet
+            if (status === 'failed') {
+                let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+                let userIndex = users.findIndex(u => u.username === currentTransaction.userId);
+                
+                if (userIndex !== -1) {
+                    users[userIndex].walletBalance = (users[userIndex].walletBalance || 0) + currentTransaction.amount;
+                    localStorage.setItem('mumbaiBookUsers', JSON.stringify(users));
+                    
+                    // Update session if the user is currently logged in
+                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                    if (currentUser && currentUser.username === currentTransaction.userId) {
+                        currentUser.walletBalance = users[userIndex].walletBalance;
+                        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    }
+                }
+            }
+            
+            alert(`Withdrawal ${status === 'success' ? 'approved' : 'rejected'} successfully!`);
+            closeModal('withdrawalModal');
+            loadWithdrawals();
+            loadUsers();
+        }
+        
+        // Filter withdrawals
+        function filterWithdrawals() {
+            const statusFilter = document.getElementById('withdrawalStatusFilter').value;
+            const dateFilter = document.getElementById('withdrawalDateFilter').value;
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            let withdrawals = transactions.filter(t => t.type === 'withdraw');
+            
+            // Apply status filter
+            if (statusFilter !== 'all') {
+                withdrawals = withdrawals.filter(w => w.status === statusFilter);
+            }
+            
+            // Apply date filter
+            if (dateFilter) {
+                const filterDate = new Date(dateFilter);
+                withdrawals = withdrawals.filter(w => {
+                    const withdrawalDate = new Date(w.date);
+                    return withdrawalDate.toDateString() === filterDate.toDateString();
+                });
+            }
+            
+            displayWithdrawals(withdrawals);
+        }
+        
+        // Reset withdrawal filters
+        function resetWithdrawalFilters() {
+            document.getElementById('withdrawalStatusFilter').value = 'all';
+            document.getElementById('withdrawalDateFilter').value = '';
+            loadWithdrawals();
+        }
+        
+        // Load all transactions
+        function loadAllTransactions() {
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            displayAllTransactions(transactions);
+        }
+        
+        // Display all transactions
+        function displayAllTransactions(transactions) {
+            const tbody = document.getElementById('transactionsBody');
+            tbody.innerHTML = '';
+            
+            // Sort by date (newest first)
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            transactions.forEach(transaction => {
+                const tr = document.createElement('tr');
+                
+                // Format date
+                const transactionDate = new Date(transaction.date);
+                const formattedDate = transactionDate.toLocaleString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Format amount
+                const formattedAmount = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(transaction.amount);
+                
+                // Type with icon
+                let typeDisplay = '';
+                if (transaction.type === 'deposit') {
+                    typeDisplay = '💳 Deposit';
+                } else if (transaction.type === 'withdraw') {
+                    typeDisplay = '💰 Withdraw';
+                } else if (transaction.type === 'adjustment') {
+                    typeDisplay = '🔄 Adjustment';
+                } else if (transaction.type === 'bet') {
+                    typeDisplay = '🎯 Bet';
+                }
+                
+                // Details based on type
+                let details = '';
+                if (transaction.type === 'deposit') {
+                    details = `UTR: ${transaction.utr || 'N/A'}`;
+                } else if (transaction.type === 'withdraw') {
+                    details = `To: ${transaction.bankDetails ? transaction.bankDetails.accountNumber : 'N/A'}`;
+                } else if (transaction.type === 'adjustment') {
+                    details = `Action: ${transaction.action} | Reason: ${transaction.adminReason || 'N/A'}`;
+                } else if (transaction.type === 'bet') {
+                    details = `Game: ${transaction.game} | Numbers: ${transaction.numbers.join(', ')}`;
+                }
+                
+                tr.innerHTML = `
+                    <td>${transaction.id}</td>
+                    <td>${transaction.userId}</td>
+                    <td>${typeDisplay}</td>
+                    <td>${formattedAmount}</td>
+                    <td>${formattedDate}</td>
+                    <td><span class="status ${transaction.status}">${transaction.status}</span></td>
+                    <td>${details}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Filter transactions
+        function filterTransactions() {
+            const typeFilter = document.getElementById('transactionTypeFilter').value;
+            const statusFilter = document.getElementById('transactionStatusFilter').value;
+            const dateFilter = document.getElementById('transactionDateFilter').value;
+            
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            
+            // Apply type filter
+            if (typeFilter !== 'all') {
+                transactions = transactions.filter(t => t.type === typeFilter);
+            }
+            
+            // Apply status filter
+            if (statusFilter !== 'all') {
+                transactions = transactions.filter(t => t.status === statusFilter);
+            }
+            
+            // Apply date filter
+            if (dateFilter) {
+                const filterDate = new Date(dateFilter);
+                transactions = transactions.filter(t => {
+                    const transactionDate = new Date(t.date);
+                    return transactionDate.toDateString() === filterDate.toDateString();
+                });
+            }
+            
+            displayAllTransactions(transactions);
+        }
+        
+        // Reset transaction filters
+        function resetTransactionFilters() {
+            document.getElementById('transactionTypeFilter').value = 'all';
+            document.getElementById('transactionStatusFilter').value = 'all';
+            document.getElementById('transactionDateFilter').value = '';
+            loadAllTransactions();
+        }
+        
+        // Load all bets
+        function loadAllBets() {
+            let bets = JSON.parse(localStorage.getItem('bets')) || [];
+            displayAllBets(bets);
+        }
+        
+        // Display all bets
+        function displayAllBets(bets) {
+            const tbody = document.getElementById('betsBody');
+            tbody.innerHTML = '';
+            
+            // Sort by date (newest first)
+            bets.sort((a, b) => new Date(b.time) - new Date(a.time));
+            
+            bets.forEach(bet => {
+                const tr = document.createElement('tr');
+                
+                // Format time
+                const betTime = new Date(bet.time);
+                const formattedTime = betTime.toLocaleString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Format amounts
+                const formattedAmount = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(bet.betAmount);
+                
+                const formattedTotal = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR'
+                }).format(bet.totalAmount);
+                
+                // Create numbers display
+                const numbersDisplay = document.createElement('div');
+                numbersDisplay.className = 'bet-numbers';
+                
+                bet.numbers.forEach(number => {
+                    const numSpan = document.createElement('span');
+                    numSpan.className = 'bet-number';
+                    numSpan.textContent = number;
+                    numbersDisplay.appendChild(numSpan);
+                });
+                
+                tr.innerHTML = `
+                    <td>${bet.id}</td>
+                    <td>${bet.userId}</td>
+                    <td>${bet.game}</td>
+                    <td></td> <!-- Numbers will be inserted below -->
+                    <td>${formattedAmount}</td>
+                    <td>${formattedTotal}</td>
+                    <td>${formattedTime}</td>
+                    <td><span class="status ${bet.status}">${bet.status}</span></td>
+                `;
+                
+                // Insert numbers display in the correct cell
+                const numbersCell = tr.cells[3];
+                numbersCell.appendChild(numbersDisplay);
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Filter bets
+        function filterBets() {
+            const gameFilter = document.getElementById('betGameFilter').value;
+            const statusFilter = document.getElementById('betStatusFilter').value;
+            const dateFilter = document.getElementById('betDateFilter').value;
+            
+            let bets = JSON.parse(localStorage.getItem('bets')) || [];
+            
+            // Apply game filter
+            if (gameFilter !== 'all') {
+                bets = bets.filter(b => b.game.includes(gameFilter));
+            }
+            
+            // Apply status filter
+            if (statusFilter !== 'all') {
+                bets = bets.filter(b => b.status === statusFilter);
+            }
+            
+            // Apply date filter
+            if (dateFilter) {
+                const filterDate = new Date(dateFilter);
+                bets = bets.filter(b => {
+                    const betDate = new Date(b.time);
+                    return betDate.toDateString() === filterDate.toDateString();
+                });
+            }
+            
+            displayAllBets(bets);
+        }
+        
+        // Reset bet filters
+        function resetBetFilters() {
+            document.getElementById('betGameFilter').value = 'all';
+            document.getElementById('betStatusFilter').value = 'all';
+            document.getElementById('betDateFilter').value = '';
+            loadAllBets();
+        }
+
+        // Initialize Results Tab
+        function initializeResultsTab() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('resultDate').value = today;
+            document.getElementById('publishedResultsDateFilter').value = today;
+            loadPublishedResults();
+        }
+
+        const GAME_DETAILS = {
+            'Game 1': { time: '12:00 PM', range: 99, period: '12 AM-10 AM' },
+            'Game 2': { time: '02:00 PM', range: 99, period: '12 AM-12 PM' },
+            'Game 3': { time: '04:00 PM', range: 19, period: '12 AM-2 PM' },
+            'Game 4': { time: '06:00 PM', range: 19, period: '12 AM-4 PM' },
+            'Game 5': { time: '08:00 PM', range: 19, period: '12 AM-6 PM' },
+            'Game 6': { time: '10:00 PM', range: 99, period: '6 PM-11:59 PM' }
+        };
+
+        function publishResults() {
+            const game = document.getElementById('resultGameSelect').value;
+            const date = document.getElementById('resultDate').value;
+            const numberInputs = document.querySelectorAll('.number-input');
+            const numbers = Array.from(numberInputs).map(input => parseInt(input.value)).filter(n => !isNaN(n));
+
+            if (!game || !date || numbers.length !== 5) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            // Check number range based on game
+            const maxNumber = GAME_DETAILS[game].range;
+            if (!numbers.every(n => n >= 0 && n <= maxNumber)) {
+                alert(`Numbers must be between 0 and ${maxNumber} for ${game}`);
+                return;
+            }
+
+            let results = JSON.parse(localStorage.getItem('gameResults')) || [];
+            
+            // Check for existing result
+            const existingIndex = results.findIndex(r => r.game === game && r.date === date);
+            if (existingIndex !== -1) {
+                if (!confirm('Result already exists for this game and date. Do you want to update it?')) {
+                    return;
+                }
+                results.splice(existingIndex, 1);
+            }
+
+            // Add new result
+            results.push({
+                game,
+                date,
+                time: GAME_DETAILS[game].time,
+                period: GAME_DETAILS[game].period,
+                numbers: numbers.sort((a, b) => a - b),
+                publishedAt: new Date().toISOString()
+            });
+
+            localStorage.setItem('gameResults', JSON.stringify(results));
+            
+            // Clear inputs
+            numberInputs.forEach(input => input.value = '');
+            
+            loadPublishedResults();
+            alert('Results published successfully');
+        }
+
+        // Load Published Results
+        function loadPublishedResults() {
+            const dateFilter = document.getElementById('publishedResultsDateFilter').value;
+            let results = JSON.parse(localStorage.getItem('gameResults')) || [];
+            
+            if (dateFilter) {
+                results = results.filter(r => r.date === dateFilter);
+            }
+
+            const container = document.getElementById('publishedResultsList');
+            
+            if (results.length === 0) {
+                container.innerHTML = '<p>No results found for selected date</p>';
+                return;
+            }
+
+            results.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+            container.innerHTML = results.map(result => `
+                <div class="result-item">
+                    <div>
+                        <strong>${result.game.replace(/_/g, ' ')}</strong>
+                        <div>${new Date(result.publishedAt).toLocaleString()}</div>
+                    </div>
+                    <div class="result-numbers">
+                        ${result.numbers.map(n => `
+                            <span class="result-number">${n.toString().padStart(2, '0')}</span>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update the game select options
+        function populateGameSelect() {
+            const select = document.getElementById('resultGameSelect');
+            select.innerHTML = Object.keys(GAME_DETAILS).map(game => 
+                `<option value="${game}">${game}</option>`
+            ).join('');
+        }
+
+        // Call this when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... existing code ...
+            populateGameSelect();
+            // ... existing code ...
+        });
+        
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            currentTransaction = null;
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.toggle('shifted');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('adminUser');
+            window.location.href = 'index.html';
+        }
+
+        // Add function to view deposit image in modal
+        function viewDepositImage(depositId) {
+            const modal = document.getElementById('imageModal') || createImageModal();
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const deposit = transactions.find(t => t.id === depositId);
+            
+            if (deposit && deposit.screenshot) {
+                const modalImg = document.getElementById('modalImage');
+                modal.style.display = "block";
+                modalImg.src = deposit.screenshot;
+            }
+        }
+
+        // Create image modal if it doesn't exist
+        function createImageModal() {
+            const modal = document.createElement('div');
+            modal.id = 'imageModal';
+            modal.className = 'modal';
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close" onclick="closeImageModal()">&times;</span>
+                    <img id="modalImage" style="width: 100%; max-height: 80vh; object-fit: contain;">
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    closeImageModal();
+                }
+            };
+            
+            return modal;
+        }
+
+        // Close image modal
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = "none";
+        }
+
+        // Function to open image in fullscreen
+        function openImageInFullscreen(imageSrc) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                cursor: pointer;
+            `;
+            
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                object-fit: contain;
+            `;
+            
+            modal.appendChild(img);
+            document.body.appendChild(modal);
+            
+            modal.onclick = () => {
+                document.body.removeChild(modal);
+            };
+        }
+
+        // Add these styles to your existing CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            .deposit-details {
+                padding: 20px;
+            }
+            
+            .screenshot-container {
+                margin: 20px 0;
+                text-align: center;
+            }
+            
+            .action-buttons {
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            }
+            
+            .approve-btn {
+                background: #28a745;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            
+            .reject-btn {
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            
+            .view-btn {
+                background: #0a2463;
+                color: white;
+                border: none;
+                padding: 6px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Book - Rules</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, #0a2463, #3e92cc);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #d4af37;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #0a2463;
+        }
+        
+        .wallet-info {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wallet-amount {
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f0f0f0;
+            color: #0a2463;
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .menu-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.open + .main-content {
+            margin-left: 250px;
+        }
+        
+        .page-title {
+            color: #0a2463;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4af37;
+        }
+        
+        /* Rules Container Styles */
+        .rules-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .rules-section {
+            margin-bottom: 30px;
+        }
+        
+        .rules-section h3 {
+            color: #0a2463;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .rules-list {
+            padding-left: 20px;
+        }
+        
+        .rules-list li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .important-note {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                ☰
+            </div>
+            <div class="logo-icon">MB</div>
+            <h3>Mumbai Book</h3>
+        </div>
+        <div class="wallet-info">
+            <span>Wallet:</span>
+            <span class="wallet-amount" id="walletAmount">₹0</span>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li onclick="window.location.href='deposit.html'">
+                <span>💳</span> Deposit
+            </li>
+            <li onclick="window.location.href='withdraw.html'">
+                <span>💰</span> Withdraw
+            </li>
+            <li class="active" onclick="window.location.href='rules.html'">
+                <span>📜</span> Rules
+            </li>
+            <li onclick="window.location.href='results.html'">
+                <span>🎲</span> Results
+            </li>
+            <li onclick="window.location.href='transactions.html'">
+                <span>📊</span> Transactions
+            </li>
+            <li onclick="window.location.href='bets.html'">
+                <span>🎯</span> My Bets
+            </li>
+            <li onclick="window.location.href='complaint.html'">
+                <span>✉️</span> Complaint
+            </li>
+            <li onclick="logout()">
+                <span>🚪</span> Logout
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <h2 class="page-title">Rules & Regulations</h2>
+        
+        <div class="rules-container">
+            <div class="rules-section">
+                <h3>Game Rules</h3>
+                <ul class="rules-list">
+                    <li>For Game1, Game2 and Game6 5 numbers among them will be declared as winning numbers. </li>
+                    <li>For Game1, Game2 and Game6 you will get 20X profits</li>
+                    <li>For Game3, Game4 and Game5 5 numbers among them will be declared as winning numbers. </li>
+                    <li>For Game3, Game4 and Game5 you will get 4X profits</li>
+                    <li>Daily In any game for one number u will get 5 Super winning numbers.</li>
+                    <li>For each Super winning number u will get 10X More profits.</li>
+                    <li>You can play any number of bets.</li>
+                </ul>
+            </div>
+            <div class="rules-section">
+                <h3>General Betting Rules</h3>
+                <ul class="rules-list">
+                    <li>All bets are final once confirmed and cannot be canceled or changed.</li>
+                    <li>Minimum bet amount is ₹10 and maximum bet amount is ₹10,000 per bet.</li>
+                    <li>Users must be 18 years or older to place bets.</li>
+                    <li>Any attempt to manipulate the system will result in account suspension.</li>
+                    <li>Winnings are calculated based on the odds at the time the bet was placed.</li>
+                    <li>In case of any dispute, Mumbai Book's decision will be final.</li>
+                    <li>Bets will be settled based on the official results only.</li>
+                </ul>
+            </div>
+            
+            <div class="rules-section">
+                <h3>Deposit Rules</h3>
+                <ul class="rules-list">
+                    <li>Minimum deposit amount is ₹100.</li>
+                    <li>Deposits must be made from a payment method registered in your name.</li>
+                    <li>All deposits must be verified before the amount is credited to your account.</li>
+                    <li>Deposits may take up to 30 minutes to reflect in your account during peak times.</li>
+                    <li>You must provide correct UTR/Transaction ID for deposit verification.</li>
+                    <li>Deposits made through third-party accounts will be rejected.</li>
+                    <li>Any deposit made using fraudulent methods will be reversed and account may be suspended.</li>
+                </ul>
+            </div>
+            
+            <div class="rules-section">
+                <h3>Withdrawal Rules</h3>
+                <ul class="rules-list">
+                    <li>Minimum withdrawal amount is ₹500.</li>
+                    <li>Maximum withdrawal amount is ₹50,000 per day.</li>
+                    <li>Withdrawals are processed within 24 hours on business days.</li>
+                    <li>2% processing fee will be deducted from all withdrawals.</li>
+                    <li>You can only withdraw to bank accounts registered in your name.</li>
+                    <li>Withdrawal requests may require additional verification.</li>
+                    <li>You must have placed at least one bet before withdrawing deposited funds.</li>
+                    <li>Withdrawals may be delayed during security checks.</li>
+                </ul>
+            </div>
+            
+            <div class="rules-section">
+                <h3>Account Rules</h3>
+                <ul class="rules-list">
+                    <li>One account per person is allowed. Multiple accounts will be suspended.</li>
+                    <li>You are responsible for keeping your login credentials secure.</li>
+                    <li>Mumbai Book will never ask for your password.</li>
+                    <li>Inactive accounts (no login for 6 months) may be deactivated.</li>
+                    <li>You must provide accurate personal information during registration.</li>
+                    <li>Accounts may be suspended for suspicious activity.</li>
+                </ul>
+            </div>
+            
+            <div class="important-note">
+                <strong>Important Note:</strong> These rules are subject to change without prior notice. It is your responsibility to check this page regularly for updates. By using our services, you agree to comply with all our rules and regulations.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update wallet amount if exists
+            const walletElement = document.getElementById('walletAmount');
+            if (walletElement) {
+                walletElement.textContent = `₹${currentUser.walletBalance || 0}`;
+            }
+        });
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.toggle('shifted');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            if (currentUser && currentUser.deviceId) {
+                let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+                const userIndex = users.findIndex(u => u.username === currentUser.username);
+                
+                if (userIndex !== -1 && users[userIndex].devices) {
+                    users[userIndex].devices = users[userIndex].devices.filter(
+                        d => d.id !== currentUser.deviceId
+                    );
+                    localStorage.setItem('mumbaiBookUsers', JSON.stringify(users));
+                }
+            }
+            
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

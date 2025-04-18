@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Book - Complaint</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, #0a2463, #3e92cc);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #d4af37;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #0a2463;
+        }
+        
+        .wallet-info {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wallet-amount {
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: #f0f0f0;
+            color: #0a2463;
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #e6f0ff;
+            color: #0a2463;
+            border-left: 4px solid #d4af37;
+        }
+        
+        .menu-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.open + .main-content {
+            margin-left: 250px;
+        }
+        
+        .page-title {
+            color: #0a2463;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4af37;
+        }
+        
+        /* Complaint Form Styles */
+        .complaint-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-group input, 
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #3e92cc;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(62, 146, 204, 0.2);
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background-color: #d4af37;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background-color: #c9a227;
+        }
+        
+        .contact-info {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3e92cc;
+        }
+        
+        .contact-info h3 {
+            color: #0a2463;
+            margin-bottom: 10px;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                ☰
+            </div>
+            <div class="logo-icon">MB</div>
+            <h3>Mumbai Book</h3>
+        </div>
+        <div class="wallet-info">
+            <span>Wallet:</span>
+            <span class="wallet-amount" id="walletAmount">₹0</span>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li onclick="window.location.href='deposit.html'">
+                <span>💳</span> Deposit
+            </li>
+            <li onclick="window.location.href='withdraw.html'">
+                <span>💰</span> Withdraw
+            </li>
+            <li onclick="window.location.href='rules.html'">
+                <span>📜</span> Rules
+            </li>
+            <li onclick="window.location.href='results.html'">
+                <span>🎲</span> Results
+            </li>
+            <li onclick="window.location.href='transactions.html'">
+                <span>📊</span> Transactions
+            </li>
+            <li onclick="window.location.href='bets.html'">
+                <span>🎯</span> My Bets
+            </li>
+            <li class="active" onclick="window.location.href='complaint.html'">
+                <span>✉️</span> Complaint
+            </li>
+            <li onclick="logout()">
+                <span>🚪</span> Logout
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <h2 class="page-title">Submit Complaint</h2>
+        
+        <div class="complaint-container">
+            <div class="contact-info">
+                <h3>Customer Support</h3>
+                <p>For any issues or complaints, please fill out the form below or contact us directly at:</p>
+                <p><strong>Email:</strong> <a href="mailto:mumbaibook.support@gmail.com">mumbaibook.support@gmail.com</a></p>
+                <p><strong>Response Time:</strong> We typically respond within 24 hours</p>
+            </div>
+            
+            <form id="complaintForm" onsubmit="submitComplaint(event)">
+                <div class="form-group">
+                    <label for="complaintType">Complaint Type</label>
+                    <select id="complaintType" required>
+                        <option value="">Select complaint type</option>
+                        <option value="deposit">Deposit Issue</option>
+                        <option value="withdraw">Withdrawal Issue</option>
+                        <option value="betting">Betting Issue</option>
+                        <option value="account">Account Issue</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" placeholder="Briefly describe your issue" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Detailed Description</label>
+                    <textarea id="description" placeholder="Please describe your issue in detail..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="screenshot">Screenshot (Optional)</label>
+                    <input type="file" id="screenshot" accept="image/*">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit Complaint</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update wallet amount if exists
+            const walletElement = document.getElementById('walletAmount');
+            if (walletElement) {
+                walletElement.textContent = `₹${currentUser.walletBalance || 0}`;
+            }
+        });
+        
+        // Submit complaint form
+        function submitComplaint(event) {
+            event.preventDefault();
+            
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            const complaintType = document.getElementById('complaintType').value;
+            const subject = document.getElementById('subject').value;
+            const description = document.getElementById('description').value;
+            const screenshot = document.getElementById('screenshot').files[0];
+            
+            // Create complaint object
+            const complaint = {
+                id: 'COMP' + Date.now().toString().slice(-8),
+                userId: currentUser.username,
+                type: complaintType,
+                subject: subject,
+                description: description,
+                date: new Date().toISOString(),
+                status: 'open',
+                screenshot: screenshot ? screenshot.name : null
+            };
+            
+            // Save complaint to localStorage
+            let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+            complaints.push(complaint);
+            localStorage.setItem('complaints', JSON.stringify(complaints));
+            
+            // In a real app, you would send this to your backend/server
+            // For now we'll simulate sending an email
+            const emailLink = `mailto:mumbaibook.support@gmail.com?subject=Complaint: ${subject}&body=User: ${currentUser.username}%0D%0AComplaint Type: ${complaintType}%0D%0A%0D%0ADescription:%0D%0A${description.replace(/\n/g, '%0D%0A')}`;
+            
+            // Open email client
+            window.location.href = emailLink;
+            
+            alert('Your complaint has been submitted successfully! We will contact you soon.');
+            
+            // Reset form
+            event.target.reset();
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.toggle('shifted');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            if (currentUser && currentUser.deviceId) {
+                let users = JSON.parse(localStorage.getItem('mumbaiBookUsers')) || [];
+                const userIndex = users.findIndex(u => u.username === currentUser.username);
+                
+                if (userIndex !== -1 && users[userIndex].devices) {
+                    users[userIndex].devices = users[userIndex].devices.filter(
+                        d => d.id !== currentUser.deviceId
+                    );
+                    localStorage.setItem('mumbaiBookUsers', JSON.stringify(users));
+                }
+            }
+            
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
