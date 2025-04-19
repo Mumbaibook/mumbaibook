@@ -398,10 +398,12 @@
 
                 const data = await response.json();
 
+                // If response is not ok, throw the error message
                 if (!response.ok) {
-                    throw new Error(data.error || 'Login failed');
+                    throw data.error || 'Login failed';
                 }
 
+                // If login successful, save user data and redirect
                 sessionStorage.setItem('currentUser', JSON.stringify({
                     userId: data.userId,
                     username: data.username,
@@ -411,10 +413,17 @@
 
                 window.location.href = 'dashboard.html';
             } catch (error) {
-                // Log the actual error for debugging
+                // Log the full error object for debugging
                 console.error('Login error:', error);
-                // Show user-friendly message
-                alert(error.message || 'Login failed. Please try again.');
+                
+                // Show a more user-friendly error message
+                if (typeof error === 'string') {
+                    alert(error);
+                } else if (error.message) {
+                    alert(error.message);
+                } else {
+                    alert('Login failed. Please try again.');
+                }
             }
         }
 
