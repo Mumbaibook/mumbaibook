@@ -329,11 +329,6 @@
     </div>
     
     <script>
-        // Initialize users if not exists
-        if (!localStorage.getItem('users')) {
-            localStorage.setItem('users', JSON.stringify([]));
-        }
-
         // Handle Registration
         async function handleRegister(event) {
             event.preventDefault();
@@ -384,7 +379,6 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                // Use relative path for API requests
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: {
