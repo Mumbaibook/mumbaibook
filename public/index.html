@@ -348,35 +348,32 @@
                 return;
             }
 
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            
-            // Check if username already exists
-            if (users.some(user => user.username === username)) {
-                alert('Username already exists!');
-                return;
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        mobile
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Registration failed');
+                }
+
+                alert('Registration successful! Please login.');
+                switchTab('login');
+                event.target.reset();
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert(error.message || 'Registration failed. Please try again.');
             }
-
-            // Check if mobile already exists
-            if (users.some(user => user.mobile === mobile)) {
-                alert('Mobile number already registered!');
-                return;
-            }
-
-            const newUser = {
-                userId: Date.now(),
-                username,
-                password, // In a real app, you should hash the password
-                mobile,
-                walletBalance: 0,
-                devices: []
-            };
-
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            alert('Registration successful! Please login.');
-            switchTab('login');
-            event.target.reset();
         }
 
         // Handle Login
