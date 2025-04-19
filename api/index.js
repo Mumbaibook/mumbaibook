@@ -33,12 +33,12 @@ app.post('/api/register', async (req, res) => {
         // Insert new user
         const { data: newUser, error: insertError } = await supabase
             .from('users')
-            .insert({
+            .insert([{
                 username: username,
                 password: hashedPassword,
                 mobile: mobile,
                 wallet_balance: 0
-            })
+            }])
             .select()
             .single();
 
@@ -49,21 +49,25 @@ app.post('/api/register', async (req, res) => {
 
         // Create initial session
         const deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
-        await supabase
+        const { error: sessionError } = await supabase
             .from('user_sessions')
-            .insert({
+            .insert([{
                 user_id: newUser.id,
                 device_id: deviceId
-            });
+            }]);
 
-        res.status(201).json({ 
+        if (sessionError) {
+            console.error('Session error:', sessionError);
+        }
+
+        return res.status(201).json({ 
             message: 'Registration successful',
             userId: newUser.id
         });
 
     } catch (error) {
         console.error('Server error:', error);
-        res.status(500).json({ error: 'An unexpected error occurred' });
+        return res.status(500).json({ error: 'An unexpected error occurred' });
     }
 });
 
@@ -76,8 +80,6 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ error: 'Username and password are required' });
         }
 
-        console.log('Login attempt for username:', username);
-
         // Get user
         const { data: user, error: userError } = await supabase
             .from('users')
@@ -85,21 +87,12 @@ app.post('/api/login', async (req, res) => {
             .eq('username', username)
             .single();
 
-        if (userError) {
-            console.error('Database error:', userError);
-            return res.status(500).json({ error: 'Database error occurred' });
-        }
-
-        if (!user) {
-            console.error('User not found:', username);
+        if (userError || !user) {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        console.log('User found:', { id: user.id, username: user.username });
-
         // Verify password
         const passwordMatch = await bcrypt.compare(password, user.password);
-        console.log('Password match:', passwordMatch);
 
         if (!passwordMatch) {
             return res.status(401).json({ error: 'Invalid username or password' });
@@ -109,16 +102,16 @@ app.post('/api/login', async (req, res) => {
         const deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
         const { error: sessionError } = await supabase
             .from('user_sessions')
-            .insert({
+            .insert([{
                 user_id: user.id,
                 device_id: deviceId
-            });
+            }]);
 
         if (sessionError) {
             console.error('Session creation error:', sessionError);
         }
 
-        res.json({
+        return res.json({
             userId: user.id,
             username: user.username,
             deviceId: deviceId,
@@ -126,8 +119,13 @@ app.post('/api/login', async (req, res) => {
         });
     } catch (error) {
         console.error('Server error:', error);
-        res.status(500).json({ error: 'An unexpected error occurred' });
+        return res.status(500).json({ error: 'An unexpected error occurred' });
     }
+});
+
+// Add a test endpoint
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'API is working' });
 });
 
 module.exports = app;
