@@ -23,11 +23,6 @@ app.post('/api/register', async (req, res) => {
             .eq('username', username)
             .single();
 
-        if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows returned
-            console.error('Check user error:', checkError);
-            return res.status(500).json({ error: 'Failed to check username' });
-        }
-
         if (existingUser) {
             return res.status(400).json({ error: 'Username already exists' });
         }
@@ -38,14 +33,12 @@ app.post('/api/register', async (req, res) => {
         // Insert new user
         const { data: newUser, error: insertError } = await supabase
             .from('users')
-            .insert([
-                {
-                    username,
-                    password: hashedPassword,
-                    mobile,
-                    wallet_balance: 0
-                }
-            ])
+            .insert({
+                username: username,
+                password: hashedPassword,
+                mobile: mobile,
+                wallet_balance: 0
+            })
             .select()
             .single();
 
@@ -56,19 +49,12 @@ app.post('/api/register', async (req, res) => {
 
         // Create initial session
         const deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
-        const { error: sessionError } = await supabase
+        await supabase
             .from('user_sessions')
-            .insert([
-                {
-                    user_id: newUser.id,
-                    device_id: deviceId
-                }
-            ]);
-
-        if (sessionError) {
-            console.error('Session creation error:', sessionError);
-            // Don't return error here, user is still created
-        }
+            .insert({
+                user_id: newUser.id,
+                device_id: deviceId
+            });
 
         res.status(201).json({ 
             message: 'Registration successful',
