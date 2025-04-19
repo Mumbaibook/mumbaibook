@@ -32,32 +32,33 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ error: 'Username and password are required' });
         }
 
-        const { data: user, error } = await supabase
+        const { data: user, error: supabaseError } = await supabase
             .from('users')
             .select('*')
             .eq('username', username)
             .single();
 
-        if (error || !user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+        if (supabaseError || !user) {
+            console.error('Supabase error:', supabaseError);
+            return res.status(401).json({ error: 'Invalid username or password' });
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid username or password' });
         }
 
         const deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
 
-        return res.json({
+        return res.status(200).json({
             userId: user.id,
             username: user.username,
             deviceId: deviceId,
-            walletBalance: user.wallet_balance
+            walletBalance: user.wallet_balance || 0
         });
     } catch (error) {
         console.error('Server error:', error);
-        return res.status(500).json({ error: 'Login failed' });
+        return res.status(500).json({ error: 'An unexpected error occurred. Please try again.' });
     }
 });
 
