@@ -38,8 +38,12 @@ app.post('/api/login', async (req, res) => {
             .eq('username', username)
             .single();
 
-        if (supabaseError || !user) {
+        if (supabaseError) {
             console.error('Supabase error:', supabaseError);
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+
+        if (!user) {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
