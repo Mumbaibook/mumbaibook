@@ -387,8 +387,6 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                console.log('Attempting login to:', `${CONFIG.API_URL}/api/login`);
-                
                 const response = await fetch(`${CONFIG.API_URL}/api/login`, {
                     method: 'POST',
                     headers: {
@@ -398,13 +396,12 @@
                     body: JSON.stringify({ username, password })
                 });
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Login failed');
+                    throw new Error(data.error || 'Login failed');
                 }
 
-                const data = await response.json();
-                
                 sessionStorage.setItem('currentUser', JSON.stringify({
                     userId: data.userId,
                     username: data.username,
@@ -414,7 +411,9 @@
 
                 window.location.href = 'dashboard.html';
             } catch (error) {
+                // Log the actual error for debugging
                 console.error('Login error:', error);
+                // Show user-friendly message
                 alert(error.message || 'Login failed. Please try again.');
             }
         }
