@@ -3,27 +3,10 @@ const app = express();
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const supabase = require('../db/supabase');
-const path = require('path');
-
-// Updated CORS configuration
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    credentials: true
-}));
 
 app.use(express.json());
+app.use(cors());
 
-// Serve static files from the public directory
-app.use(express.static('public'));
-
-// Root route to serve index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-// Login endpoint
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -31,6 +14,9 @@ app.post('/api/login', async (req, res) => {
         if (!username || !password) {
             return res.status(400).json({ error: 'Username and password are required' });
         }
+
+        // Log the attempt
+        console.log('Login attempt for username:', username);
 
         const { data: user, error: supabaseError } = await supabase
             .from('users')
@@ -54,7 +40,7 @@ app.post('/api/login', async (req, res) => {
 
         const deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
 
-        return res.status(200).json({
+        res.json({
             userId: user.id,
             username: user.username,
             deviceId: deviceId,
@@ -62,13 +48,9 @@ app.post('/api/login', async (req, res) => {
         });
     } catch (error) {
         console.error('Server error:', error);
-        return res.status(500).json({ error: 'An unexpected error occurred. Please try again.' });
+        res.status(500).json({ error: 'An unexpected error occurred' });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
+// Export the Express app
 module.exports = app;
