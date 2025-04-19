@@ -387,24 +387,21 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                const apiUrl = `${CONFIG.API_URL}/api/login`;
-                console.log('Attempting login to:', apiUrl); // Debug log
-
-                const response = await fetch(apiUrl, {
+                // Use relative path for API requests
+                const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ username, password })
                 });
 
-                const data = await response.json();
-
                 if (!response.ok) {
-                    throw new Error(data.error || 'Login failed');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Login failed');
                 }
 
+                const data = await response.json();
                 sessionStorage.setItem('currentUser', JSON.stringify({
                     userId: data.userId,
                     username: data.username,
@@ -415,11 +412,7 @@
                 window.location.href = 'dashboard.html';
             } catch (error) {
                 console.error('Login error:', error);
-                if (error.message === 'Failed to fetch') {
-                    alert('Unable to connect to the server. Please check your internet connection.');
-                } else {
-                    alert(error.message || 'Login failed. Please try again.');
-                }
+                alert(error.message || 'Login failed. Please try again.');
             }
         }
 
