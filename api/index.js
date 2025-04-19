@@ -85,15 +85,23 @@ app.post('/api/login', async (req, res) => {
             .eq('username', username)
             .single();
 
-        if (userError || !user) {
+        if (userError) {
+            console.error('Database error:', userError);
+            return res.status(500).json({ error: 'Database error occurred' });
+        }
+
+        if (!user) {
             console.error('User not found:', username);
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
+        console.log('User found:', { id: user.id, username: user.username });
+
         // Verify password
         const passwordMatch = await bcrypt.compare(password, user.password);
+        console.log('Password match:', passwordMatch);
+
         if (!passwordMatch) {
-            console.error('Password mismatch for user:', username);
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
@@ -101,16 +109,13 @@ app.post('/api/login', async (req, res) => {
         const deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
         const { error: sessionError } = await supabase
             .from('user_sessions')
-            .insert([
-                {
-                    user_id: user.id,
-                    device_id: deviceId
-                }
-            ]);
+            .insert({
+                user_id: user.id,
+                device_id: deviceId
+            });
 
         if (sessionError) {
             console.error('Session creation error:', sessionError);
-            // Continue anyway as login is successful
         }
 
         res.json({
