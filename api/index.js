@@ -5,11 +5,11 @@ const cors = require('cors');
 const supabase = require('../db/supabase');
 const path = require('path');
 
-// Middleware
+// Updated CORS configuration
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-        ? ['https://mumbai-book.vercel.app']
-        : ['http://localhost:3000'],
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true
 }));
 
