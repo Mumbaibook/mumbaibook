@@ -246,12 +246,20 @@ def submit_withdraw():
             'status': 'pending'
         }
 
-        response = supabase.table('transactions').insert(withdraw_data).execute()
-        return jsonify({'message': 'Withdrawal request submitted successfully'}), 200
+        # Insert withdrawal request without deducting balance
+        supabase.table('transactions').insert(withdraw_data).execute()
+
+        return jsonify({
+            'message': 'Withdrawal request submitted successfully',
+            'status': 'success'
+        }), 200
 
     except Exception as e:
-        print(f"Withdrawal error: {str(e)}")
-        return jsonify({'error': str(e)}), 400
+        print(f"Error submitting withdrawal: {str(e)}")
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 400
 
 @app.route('/rules')
 @login_required
