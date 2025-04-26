@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deposit - Mumbai Book</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .deposit-container {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(145deg, #ffffff, #f5f7ff);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(24, 119, 242, 0.1);
+            border: 1px solid rgba(24, 119, 242, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1877f2;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            background: linear-gradient(45deg, #1877f2, #0d47a1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .payment-info {
+            background: linear-gradient(145deg, #f8f9ff, #ffffff);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.05),
+                        -3px -3px 10px rgba(255,255,255,0.8);
+        }
+
+        .qr-code {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .qr-code img {
+            max-width: 180px;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            padding: 8px;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        .upi-details {
+            background: rgba(24, 119, 242, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .upi-id {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1877f2;
+            text-align: center;
+            margin-bottom: 8px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px dashed #1877f2;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #1877f2, #0d47a1);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(24, 119, 242, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1877f2;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(24, 119, 242, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+        }
+
+        .min-amount {
+            background: #fff3cd;
+            color: #856404;
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #1877f2, #0d47a1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.2);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            font-size: 0.9rem;
+            text-align: center;
+            min-width: 200px;
+            max-width: 90%;
+        }
+
+        /* Mobile Responsive Styles */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .deposit-container {
+                margin: 10px auto;
+                padding: 15px;
+                border-radius: 12px;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .payment-info {
+                padding: 12px;
+            }
+
+            .qr-code img {
+                max-width: 150px;
+            }
+
+            .upi-id {
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+
+            .copy-btn {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+
+            .form-group label {
+                font-size: 0.85rem;
+            }
+
+            .form-group input {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            .submit-btn {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+
+            .min-amount {
+                font-size: 0.75rem;
+                padding: 6px;
+            }
+        }
+
+        /* Tablet Responsive Styles */
+        @media screen and (min-width: 481px) and (max-width: 768px) {
+            .deposit-container {
+                margin: 15px auto;
+                max-width: 450px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="deposit-container">
+        <h2 class="section-title">Deposit Funds</h2>
+        
+        <div class="payment-info">
+            <div class="qr-code">
+                <img src="/static/qr-code.png" alt="Payment QR Code">
+                <p>Scan QR code to make payment</p>
+            </div>
+            
+            <div class="upi-details">
+                <div class="upi-id">mumbaibook@ibl</div>
+                <button class="copy-btn" onclick="copyUpiId()">
+                    <i class="far fa-copy"></i> Copy
+                </button>
+            </div>
+            
+            <div class="info-text">
+                <i class="fas fa-info-circle"></i> After payment, please submit the UTR number below
+            </div>
+        </div>
+
+        <form onsubmit="handleDeposit(event)">
+            <div class="form-group">
+                <label><i class="fas fa-receipt"></i> UTR Number</label>
+                <input type="text" id="utrNumber" required placeholder="Enter UTR number">
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-rupee-sign"></i> Amount</label>
+                <input type="number" id="amount" required placeholder="Enter amount">
+                <div class="min-amount">
+                    <i class="fas fa-exclamation-circle"></i> Minimum deposit amount: ₹100
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-paper-plane"></i> Submit Deposit Request
+            </button>
+        </form>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function copyUpiId() {
+            navigator.clipboard.writeText('mumbaibook@ibl')
+                .then(() => showToast('UPI ID copied!'))
+                .catch(err => showToast('Failed to copy UPI ID'));
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        async function handleDeposit(event) {
+            event.preventDefault();
+            
+            const utrNumber = document.getElementById('utrNumber').value;
+            const amount = document.getElementById('amount').value;
+
+            if (amount < 100) {
+                showToast('Minimum deposit amount is ₹100');
+                return;
+            }
+
+            try {
+                const response = await fetch('/submit_deposit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        utrNumber: utrNumber,
+                        amount: amount
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showToast('Deposit request submitted successfully!');
+                    setTimeout(() => {
+                        window.location.href = '/transactions';
+                    }, 2000);
+                } else {
+                    showToast('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while submitting deposit request');
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+

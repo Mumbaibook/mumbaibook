@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Bets</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .bets-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        .bets-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .bets-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .bets-header h2 {
+            font-size: 1.5rem;
+            color: #1877f2;
+        }
+
+        .bet-filters {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .bet-filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: #f0f2f5;
+            color: #666;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #1877f2;
+            color: white;
+        }
+
+        .bet-item {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            padding: 15px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .bet-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .bet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .game-type {
+            font-weight: 600;
+            color: #1877f2;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .game-type i {
+            font-size: 0.9rem;
+        }
+
+        .bet-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-won {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-lost {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .bet-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .bet-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .bet-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .number-badge {
+            background: #f0f2f5;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .no-bets {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-style: italic;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .loading::after {
+            content: "";
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1877f2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive Styles */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .bets-container {
+                margin: 10px auto;
+                padding: 10px;
+            }
+
+            .bets-section {
+                padding: 15px;
+            }
+
+            .bets-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .bet-filters {
+                width: 100%;
+            }
+
+            .bet-item {
+                padding: 12px;
+            }
+
+            .bet-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .bet-details {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .detail-label {
+                font-size: 0.8rem;
+            }
+
+            .detail-value {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bets-container">
+        <div class="bets-section">
+            <div class="bets-header">
+                <h2>My Bets</h2>
+                <div class="bet-filters">
+                    <button class="filter-btn active" onclick="filterBets('all')">All Bets</button>
+                    <button class="filter-btn" onclick="filterBets('morning')">Morning</button>
+                    <button class="filter-btn" onclick="filterBets('afternoon')">Afternoon</button>
+                    <button class="filter-btn" onclick="filterBets('evening')">Evening</button>
+                </div>
+            </div>
+            <div id="betsList">
+                <!-- Bets will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+        let allBets = [];
+
+        function filterBets(type) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            currentFilter = type;
+
+            // Filter and display bets
+            displayBets(type === 'all' ? allBets : allBets.filter(bet => bet.game_type === type));
+        }
+
+        function displayBets(bets) {
+            const betsList = document.getElementById('betsList');
+            
+            if (bets.length === 0) {
+                betsList.innerHTML = '<div class="no-bets">No bets found</div>';
+                return;
+            }
+
+            betsList.innerHTML = bets.map(bet => `
+                <div class="bet-item">
+                    <div class="bet-header">
+                        <div class="game-type">
+                            <i class="fas fa-dice"></i>
+                            ${bet.game_type.toUpperCase()} GAME
+                        </div>
+                        <span class="bet-status status-${bet.status.toLowerCase()}">${bet.status}</span>
+                    </div>
+                    <div class="bet-numbers">
+                        ${bet.numbers.map(num => `
+                            <span class="number-badge">${num}</span>
+                        `).join('')}
+                    </div>
+                    <div class="bet-details">
+                        <div class="bet-detail">
+                            <span class="detail-label">Amount</span>
+                            <span class="detail-value">₹${bet.amount}</span>
+                        </div>
+                        <div class="bet-detail">
+                            <span class="detail-label">Potential Win</span>
+                            <span class="detail-value">₹${bet.potential_win}</span>
+                        </div>
+                        <div class="bet-detail">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">${new Date(bet.date).toLocaleDateString()}</span>
+                        </div>
+                        <div class="bet-detail">
+                            <span class="detail-label">Time</span>
+                            <span class="detail-value">${new Date(bet.date).toLocaleTimeString()}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadBets() {
+            const betsList = document.getElementById('betsList');
+            betsList.innerHTML = '<div class="loading"></div>';
+
+            try {
+                const response = await fetch('/get_user_bets');
+                const data = await response.json();
+                
+                allBets = data.bets;
+                displayBets(allBets);
+            } catch (error) {
+                console.error('Error:', error);
+                betsList.innerHTML = '<div class="no-bets">Error loading bets. Please try again later.</div>';
+            }
+        }
+
+        // Load bets when page loads
+        document.addEventListener('DOMContentLoaded', loadBets);
+    </script>
+</body>
+</html>

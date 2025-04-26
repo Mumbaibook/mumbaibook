@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Mumbai Book</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .results-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .results-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .date-selector {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .date-selector input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .results-table th {
+            background-color: #1877f2;
+            color: white;
+        }
+
+        .results-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .winning-number {
+            font-weight: bold;
+            color: #1877f2;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container">
+        <div class="date-selector">
+            <input type="date" id="resultDate" onchange="fetchResults()">
+        </div>
+
+        <div class="results-section">
+            <h2>Game Results</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Game Type</th>
+                        <th>Winning Numbers</th>
+                        <th>Multiplier</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Results will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('resultDate').valueAsDate = new Date();
+
+        async function fetchResults() {
+            const date = document.getElementById('resultDate').value;
+            try {
+                const response = await fetch(`/get_results?date=${date}`);
+                const data = await response.json();
+                
+                const resultsBody = document.getElementById('resultsBody');
+                resultsBody.innerHTML = '';
+
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(result => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${result.type}</td>
+                            <td class="winning-number">${result.numbers.join(' - ')}</td>
+                            <td>${result.multiplier}x</td>
+                        `;
+                        resultsBody.appendChild(row);
+                    });
+                } else {
+                    resultsBody.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="no-results">No results available for this date</td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="no-results">Error loading results</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Load results when page loads
+        fetchResults();
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Complaints - Mumbai Book</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .complaints-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        .complaints-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: #1877f2;
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .response-time {
+            background-color: #e8f0fe;
+            border-left: 4px solid #1877f2;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .response-time i {
+            color: #1877f2;
+            font-size: 1.2rem;
+        }
+
+        .response-time span {
+            color: #1877f2;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95rem;
+        }
+
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+            min-height: 100px;
+            max-height: 300px;
+        }
+
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+        }
+
+        .submit-btn {
+            background-color: #1877f2;
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            background-color: #1664d9;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .submit-btn i {
+            font-size: 1.1rem;
+        }
+
+        .submit-btn.loading {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .submit-btn.loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #fff;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .complaint-success {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Mobile Responsive Styles */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .complaints-container {
+                margin: 10px auto;
+                padding: 10px;
+            }
+
+            .complaints-section {
+                padding: 20px;
+            }
+
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .form-group select,
+            .form-group textarea {
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+
+            .submit-btn {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="complaints-container">
+        <div class="complaints-section">
+            <div class="section-header">
+                <h2>Submit a Complaint</h2>
+                <p>We're here to help resolve any issues you encounter</p>
+            </div>
+            
+            <div class="response-time">
+                <i class="fas fa-clock"></i>
+                <span>Our team typically responds within 12 hours</span>
+            </div>
+
+            <form id="complaintForm" onsubmit="handleComplaint(event)">
+                <div class="form-group">
+                    <label for="complaintType">Type of Complaint</label>
+                    <select id="complaintType" required>
+                        <option value="">Select complaint type</option>
+                        <option value="deposit">Deposit Issue</option>
+                        <option value="withdrawal">Withdrawal Issue</option>
+                        <option value="game">Game Issue</option>
+                        <option value="technical">Technical Issue</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="complaintDescription">Description</label>
+                    <textarea 
+                        id="complaintDescription" 
+                        placeholder="Please provide detailed information about your issue..."
+                        required
+                        minlength="10"
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Complaint
+                </button>
+            </form>
+
+            <div id="successMessage" class="complaint-success">
+                <i class="fas fa-check-circle"></i>
+                Your complaint has been submitted successfully!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleComplaint(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            const complaintType = document.getElementById('complaintType');
+            const description = document.getElementById('complaintDescription');
+            
+            // Validate inputs
+            if (!complaintType.value || !description.value) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (description.value.length < 10) {
+                alert('Please provide a more detailed description (minimum 10 characters)');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Submitting...';
+
+            // Prepare email content
+            const subject = `Complaint: ${complaintType.value}`;
+            const body = `Complaint Type: ${complaintType.value}\n\nDescription: ${description.value}`;
+            
+            // Encode the subject and body for URL
+            const encodedSubject = encodeURIComponent(subject);
+            const encodedBody = encodeURIComponent(body);
+            
+            // Create Gmail mailto link
+            const gmailUrl = `mailto:mumbaibookie@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
+            
+            // Simulate delay for better UX
+            setTimeout(() => {
+                // Open default email client
+                window.location.href = gmailUrl;
+                
+                // Reset form and show success message
+                complaintType.value = '';
+                description.value = '';
+                
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i>Submit Complaint';
+                
+                successMessage.style.display = 'block';
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
