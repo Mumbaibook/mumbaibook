@@ -545,12 +545,30 @@
 
             #main {
                 margin-left: 0 !important;
-                padding: 10px;
+                width: 100%;
+                overflow-x: hidden;
             }
 
             .navbar {
-                padding: 10px;
-                flex-wrap: wrap;
+                width: 100%;
+                position: relative;
+                padding: 10px 15px;
+            }
+
+            .navbar > div:last-child {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-left: auto;
+            }
+
+            body {
+                overflow-x: hidden;
+                width: 100%;
+            }
+
+            .wallet {
+                white-space: nowrap;
             }
 
             .logo-text {
@@ -599,7 +617,11 @@
         @media screen and (max-width: 480px) {
             .navbar {
                 justify-content: space-between;
-                padding: 8px;
+                padding: 8px 12px;
+            }
+
+            .navbar > div:last-child {
+                gap: 8px;
             }
 
             .logo-text {
