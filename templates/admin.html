@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Mumbai Book</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #1877f2;
+            color: white;
+            padding: 20px;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo span {
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid #ffd700;
+            padding: 5px 10px;
+            border-radius: 50%;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #1877f2;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .status-pending {
+            background-color: #ffd700;
+            color: #000;
+        }
+
+        .status-approved {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .status-rejected {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .approve-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .reject-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .view-btn {
+            background-color: #1877f2;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1877f2;
+            margin: 10px 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .wallet-adjustment {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .wallet-adjustment h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        .adjustment-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .adjustment-controls input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .adjustment-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .nav-item .fa-dice {
+            margin-right: 10px;
+        }
+
+        #oddeven-results .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #oddeven-results .section-title {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        #oddeven-results .table {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="sidebar">
+            <div class="logo">
+                <span>MB</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link" onclick="showSection('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#users" class="nav-link" onclick="showSection('users')">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#transactions" class="nav-link" onclick="showSection('transactions')">
+                        <i class="fas fa-exchange-alt"></i> Transactions
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#game-results" class="nav-link" onclick="showSection('game-results')">
+                        <i class="fas fa-trophy"></i> Game Results
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#oddeven-results" class="nav-link" onclick="showSection('oddeven-results')">
+                        <i class="fas fa-dice"></i> Odd/Even Results
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div id="dashboard" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Dashboard Overview</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-value" id="totalUsers">0</div>
+                        <div>Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div class="stat-value" id="totalDeposits">₹0</div>
+                        <div>Total Deposits</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-money-bill-alt"></i>
+                        <div class="stat-value" id="totalWithdrawals">₹0</div>
+                        <div>Total Withdrawals</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-dice"></i>
+                        <div class="stat-value" id="activeBets">0</div>
+                        <div>Active Bets</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="transactions" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">All Transactions</h2>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                        <!-- Transactions will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="complaints" class="section" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">User Complaints</h2>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintsTable">
+                        <!-- Complaints will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="game-results" class="section" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Game Results</h2>
+                    <button class="action-btn view-btn" onclick="showAddResultModal()">Add New Result</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Game Type</th>
+                            <th>Winning Number</th>
+                            <th>Date</th>
+                            <th>Total Bets</th>
+                            <th>Total Payout</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable">
+                        <!-- Results will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="oddeven-results" class="section" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Odd/Even Game Results</h2>
+                    <button class="action-btn view-btn" onclick="showAddOddEvenResultModal()">Add New Result</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Result</th>
+                            <th>Total Bets</th>
+                            <th>Total Payout</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="oddEvenResultsTable">
+                        <!-- Results will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="users" class="section" style="display: none;">
+                <div class="section-header">
+                    <h2>Users Management</h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Phone</th>
+                                <th>Balance</th>
+                                <th>Join Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="deposits" class="section" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Deposit Requests</h2>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Phone</th>
+                            <th>Amount</th>
+                            <th>UTR Number</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositRequestsTable">
+                        <!-- Deposit requests will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="withdrawals" class="section" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Withdrawal Requests</h2>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Phone</th>
+                            <th>Amount</th>
+                            <th>Bank Details</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="withdrawalRequestsTable">
+                        <!-- Withdrawal requests will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Result Modal -->
+    <div id="addResultModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addResultModal')">&times;</span>
+            <h2>Add New Result</h2>
+            <form id="addResultForm" onsubmit="handleAddResult(event)">
+                <div class="form-group">
+                    <label>Game Type</label>
+                    <select id="gameType" required>
+                        <option value="morning">Morning Game</option>
+                        <option value="afternoon">Afternoon Game</option>
+                        <option value="evening">Evening Game</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="resultDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Winning Numbers (5 numbers required)</label>
+                    <div class="number-inputs">
+                        <input type="number" id="winningNumber1" required min="0" max="99" placeholder="1st number">
+                        <input type="number" id="winningNumber2" required min="0" max="99" placeholder="2nd number">
+                        <input type="number" id="winningNumber3" required min="0" max="99" placeholder="3rd number">
+                        <input type="number" id="winningNumber4" required min="0" max="99" placeholder="4th number">
+                        <input type="number" id="winningNumber5" required min="0" max="99" placeholder="5th number">
+                    </div>
+                </div>
+                <button type="submit" class="action-btn approve-btn">Add Result</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Odd/Even Result Modal -->
+    <div id="addOddEvenResultModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addOddEvenResultModal')">&times;</span>
+            <h2>Add Odd/Even Result</h2>
+            <form id="addOddEvenResultForm" onsubmit="handleAddOddEvenResult(event)">
+                <div class="form-group">
+                    <label>Result Type</label>
+                    <select id="oddEvenResult" required>
+                        <option value="odd">Odd</option>
+                        <option value="even">Even</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="oddEvenResultDate" required>
+                </div>
+                <button type="submit" class="action-btn approve-btn">Add Result</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            // Show selected section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // Load section data
+            switch(sectionId) {
+                case 'dashboard':
+                    loadDashboardStats();
+                    break;
+                case 'transactions':
+                    loadTransactions();
+                    break;
+                case 'game-results':
+                    loadGameResults();
+                    break;
+                case 'oddeven-results':
+                    loadOddEvenResults();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+            }
+        }
+
+        function loadDashboardStats() {
+            fetch('/admin/dashboard-stats')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('totalUsers').textContent = data.totalUsers;
+                    document.getElementById('totalDeposits').textContent = '₹' + data.totalDeposits.toFixed(2);
+                    document.getElementById('totalWithdrawals').textContent = '₹' + data.totalWithdrawals.toFixed(2);
+                    document.getElementById('activeBets').textContent = data.activeBets;
+                })
+                .catch(error => {
+                    console.error('Error loading dashboard stats:', error);
+                    // Show error message on dashboard
+                    document.querySelectorAll('.stat-value').forEach(el => {
+                        el.textContent = 'Error';
+                    });
+                });
+        }
+
+        function loadTransactions() {
+            fetch('/admin/transactions')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('transactionsTable');
+                    tbody.innerHTML = '';
+                    
+                    data.transactions.forEach(transaction => {
+                        const details = transaction.type === 'deposit' 
+                            ? `UTR: ${transaction.utr_number || 'N/A'}`
+                            : transaction.type === 'withdraw'
+                                ? `Bank: ${transaction.bank_name}<br>
+                                   Acc: ${transaction.account_number}<br>
+                                   IFSC: ${transaction.ifsc_code}<br>
+                                   Name: ${transaction.account_holder}`
+                                : 'N/A';
+
+                        // Fixed: Properly handle the transaction ID
+                        const actions = transaction.status === 'pending'
+                            ? `<button class="btn btn-success btn-sm" onclick="handleTransaction('${transaction.id}', 'approve', '${transaction.type}')">
+                                 Approve
+                               </button>
+                               <button class="btn btn-danger btn-sm" onclick="handleTransaction('${transaction.id}', 'reject', '${transaction.type}')">
+                                 Reject
+                               </button>`
+                            : transaction.status;
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${transaction.username}</td>
+                                <td>${transaction.type.toUpperCase()}</td>
+                                <td>₹${parseFloat(transaction.amount).toFixed(2)}</td>
+                                <td>${details}</td>
+                                <td>${transaction.status}</td>
+                                <td>${new Date(transaction.created_at).toLocaleString()}</td>
+                                <td>${actions}</td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading transactions:', error);
+                    document.getElementById('transactionsTable').innerHTML = 
+                        '<tr><td colspan="7" class="text-center text-danger">Error loading transactions</td></tr>';
+                });
+        }
+
+        function handleTransaction(id, action, type) {
+            console.log('Transaction details:', { id, action, type }); // Debug log
+
+            // Disable the clicked button and its sibling
+            const row = event.target.closest('tr');
+            const buttons = row.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const endpoint = type.toLowerCase() === 'deposit' ? '/admin/handle_deposit' : '/admin/handle_withdrawal';
+            
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    transaction_id: id,
+                    action: action
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status); // Debug log
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Failed to process transaction');
+                    }
+                    return data;
+                });
+            })
+            .then(data => {
+                console.log('Success:', data); // Debug log
+                alert(data.message || 'Transaction processed successfully');
+                loadTransactions(); // Refresh the transactions list
+                loadDashboardStats(); // Refresh dashboard stats
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing transaction: ' + error.message);
+            })
+            .finally(() => {
+                // Re-enable the buttons
+                buttons.forEach(btn => btn.disabled = false);
+            });
+        }
+
+        function loadComplaints() {
+            fetch('/admin/complaints')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('complaintsTable');
+                    tbody.innerHTML = '';
+                    data.complaints.forEach(complaint => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${complaint.username}</td>
+                                <td>${complaint.type}</td>
+                                <td>${complaint.description}</td>
+                                <td><span class="status-badge status-${complaint.status.toLowerCase()}">${complaint.status}</span></td>
+                                <td>${new Date(complaint.date).toLocaleDateString()}</td>
+                                <td>
+                                    <button class="action-btn view-btn" onclick="viewComplaint(${complaint.id})">View</button>
+                                    <button class="action-btn approve-btn" onclick="resolveComplaint(${complaint.id})">Resolve</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        function loadGameResults() {
+            fetch('/admin/game-results')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('resultsTable');
+                    tbody.innerHTML = '';
+                    if (data.results && data.results.length > 0) {
+                        data.results.forEach(result => {
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td>${result.gameType}</td>
+                                    <td>${result.winningNumber}</td>
+                                    <td>${new Date(result.date).toLocaleDateString()}</td>
+                                    <td>${result.totalBets}</td>
+                                    <td>₹${result.totalPayout}</td>
+                                    <td>
+                                        <button class="action-btn view-btn" onclick="viewResult('${result.id}')">View Details</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="6">No results found</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to load game results');
+                });
+        }
+
+        function showAddResultModal() {
+            document.getElementById('addResultModal').style.display = 'block';
+            document.getElementById('resultDate').valueAsDate = new Date();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function handleAddResult(event) {
+            event.preventDefault();
+            const gameType = document.getElementById('gameType').value;
+            const resultDate = document.getElementById('resultDate').value;
+            const winningNumbers = [
+                document.getElementById('winningNumber1').value,
+                document.getElementById('winningNumber2').value,
+                document.getElementById('winningNumber3').value,
+                document.getElementById('winningNumber4').value,
+                document.getElementById('winningNumber5').value,
+            ].map(num => num.padStart(2, '0'));
+
+            // Check for duplicate numbers
+            const uniqueNumbers = new Set(winningNumbers);
+            if (uniqueNumbers.size !== 5) {
+                alert('Please enter 5 different numbers');
+                return;
+            }
+
+            fetch('/admin/add_result', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    gameType, 
+                    winningNumbers,
+                    date: resultDate
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    closeModal('addResultModal');
+                    loadGameResults();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to add result');
+            });
+        }
+
+        function loadUsers() {
+            fetch('/admin/users')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Received data:", data);  // Debug log
+                    const tbody = document.getElementById('usersTable');
+                    tbody.innerHTML = '';
+                    
+                    if (!data.users || data.users.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No users found</td></tr>';
+                        return;
+                    }
+                    
+                    data.users.forEach(user => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${user.username || 'N/A'}</td>
+                                <td>${user.phone_number || 'N/A'}</td>
+                                <td>₹${parseFloat(user.balance || 0).toFixed(2)}</td>
+                                <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
+                                <td>
+                                    <button class="btn btn-info btn-sm" onclick="viewUser('${user.id}')">View</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading users:', error);
+                    const tbody = document.getElementById('usersTable');
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading users: ' + error.message + '</td></tr>';
+                });
+        }
+
+        function viewUser(userId) {
+            fetch(`/admin/user/${userId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(user => {
+                    const modal = document.getElementById('userModal');
+                    const userDetails = document.getElementById('userDetails');
+                    
+                    const createdDate = new Date(user.created_at).toLocaleString();
+                    const lastLogin = user.last_login ? new Date(user.last_login).toLocaleString() : 'Never';
+                    
+                    userDetails.innerHTML = `
+                        <div class="user-detail-row">
+                            <label>Username:</label>
+                            <span>${user.username || 'N/A'}</span>
+                        </div>
+                        <div class="user-detail-row">
+                            <label>Phone:</label>
+                            <span>${user.phone_number || 'N/A'}</span>
+                        </div>
+                        <div class="user-detail-row">
+                            <label>Balance:</label>
+                            <span id="userBalance">₹${parseFloat(user.balance || 0).toFixed(2)}</span>
+                        </div>
+                        <div class="user-detail-row">
+                            <label>Join Date:</label>
+                            <span>${createdDate}</span>
+                        </div>
+                        <div class="user-detail-row">
+                            <label>Last Login:</label>
+                            <span>${lastLogin}</span>
+                        </div>
+                        
+                        <!-- Wallet Adjustment Section -->
+                        <div class="wallet-adjustment">
+                            <h3>Adjust Wallet Balance</h3>
+                            <div class="adjustment-controls">
+                                <input type="number" id="adjustmentAmount" placeholder="Enter amount" min="0" step="0.01">
+                                <div class="adjustment-buttons">
+                                    <button onclick="adjustWallet('${user.id}', 'add')" class="btn-success">Add</button>
+                                    <button onclick="adjustWallet('${user.id}', 'subtract')" class="btn-danger">Subtract</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn-primary" onclick="closeUserModal()">Close</button>
+                        </div>
+                    `;
+                    
+                    modal.style.display = "block";
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading user details. Please try again.');
+                });
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').style.display = "none";
+        }
+
+        // Close modal when clicking the X button
+        document.querySelector('.close').onclick = closeUserModal;
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('userModal');
+            if (event.target == modal) {
+                closeUserModal();
+            }
+        }
+
+        function toggleUserStatus(userId, newStatus) {
+            if (!confirm(`Are you sure you want to ${newStatus ? 'unblock' : 'block'} this user?`)) {
+                return;
+            }
+
+            fetch('/admin/toggle-user-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    is_active: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('userModal').style.display = "none";
+                    loadUsers(); // Reload the users list
+                    alert(`User successfully ${newStatus ? 'unblocked' : 'blocked'}`);
+                } else {
+                    alert('Failed to update user status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating user status');
+            });
+        }
+
+        function loadDepositRequests() {
+            fetch('/admin/deposit-requests')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('depositRequestsTable');
+                    tbody.innerHTML = '';
+                    
+                    if (!data.deposit_requests || data.deposit_requests.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No pending deposit requests</td></tr>';
+                        return;
+                    }
+                    
+                    data.deposit_requests.forEach(request => {
+                        // Add null check for UTR number
+                        const utrDisplay = request.utr_number || 'N/A';
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${request.username}</td>
+                                <td>${request.phone_number}</td>
+                                <td>₹${parseFloat(request.amount).toFixed(2)}</td>
+                                <td>${utrDisplay}</td>
+                                <td>${new Date(request.created_at).toLocaleString()}</td>
+                                <td>
+                                    <button class="btn btn-success btn-sm" onclick="handleDeposit('${request.id}', 'approve')">
+                                        Approve
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="handleDeposit('${request.id}', 'reject')">
+                                        Reject
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading deposit requests:', error);
+                    document.getElementById('depositRequestsTable').innerHTML = 
+                        '<tr><td colspan="6" class="text-center text-danger">Error loading deposit requests</td></tr>';
+                });
+        }
+
+        function loadWithdrawalRequests() {
+            fetch('/admin/withdrawal-requests')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('withdrawalRequestsTable');
+                    tbody.innerHTML = '';
+                    
+                    if (!data.withdrawal_requests || data.withdrawal_requests.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No pending withdrawal requests</td></tr>';
+                        return;
+                    }
+                    
+                    data.withdrawal_requests.forEach(request => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${request.username}</td>
+                                <td>${request.phone_number}</td>
+                                <td>₹${request.amount.toFixed(2)}</td>
+                                <td>
+                                    Bank: ${request.bank_name}<br>
+                                    Name: ${request.account_holder}<br>
+                                    A/C: ${request.account_number}<br>
+                                    IFSC: ${request.ifsc_code}
+                                </td>
+                                <td>${new Date(request.created_at).toLocaleString()}</td>
+                                <td>
+                                    <button class="btn btn-success btn-sm" onclick="handleWithdrawal(${request.id}, 'approve')">
+                                        Approve
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="handleWithdrawal(${request.id}, 'reject')">
+                                        Reject
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading withdrawal requests:', error);
+                    document.getElementById('withdrawalRequestsTable').innerHTML = 
+                        '<tr><td colspan="6" class="text-center text-danger">Error loading withdrawal requests</td></tr>';
+                });
+        }
+
+        function handleDeposit(transactionId, action) {
+            fetch('/admin/handle_deposit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    transaction_id: transactionId,
+                    action: action
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadDepositRequests();  // Refresh the deposit requests list
+                loadDashboardStats();   // Refresh dashboard stats
+                // Force reload the page to update all balances
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error handling deposit:', error);
+                alert('Error processing deposit request');
+            });
+        }
+
+        function handleWithdrawal(transactionId, action) {
+            fetch('/admin/handle_withdrawal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    transaction_id: transactionId,
+                    action: action
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadWithdrawalRequests();  // Refresh the withdrawal requests list
+                loadDashboardStats();      // Refresh dashboard stats
+            })
+            .catch(error => {
+                console.error('Error handling withdrawal:', error);
+                alert('Error processing withdrawal request');
+            });
+        }
+
+        document.getElementById('usersLink').addEventListener('click', () => {
+            showSection('users');
+            loadUsers();
+        });
+
+        document.getElementById('depositsLink').addEventListener('click', () => {
+            showSection('deposits');
+            loadDepositRequests();
+        });
+
+        document.getElementById('withdrawalsLink').addEventListener('click', () => {
+            showSection('withdrawals');
+            loadWithdrawalRequests();
+        });
+
+        setInterval(() => {
+            if (document.getElementById('deposits').style.display !== 'none') {
+                loadDepositRequests();
+            }
+            if (document.getElementById('withdrawals').style.display !== 'none') {
+                loadWithdrawalRequests();
+            }
+        }, 30000);
+
+        function logout() {
+            fetch('/admin/logout', {
+                method: 'POST'
+            }).then(() => {
+                window.location.href = '/admin/login';
+            });
+        }
+
+        // Load dashboard by default
+        showSection('dashboard');
+
+        // Auto-refresh dashboard stats and transactions every 30 seconds
+        setInterval(() => {
+            if (document.getElementById('dashboard').style.display !== 'none') {
+                loadDashboardStats();
+            }
+            if (document.getElementById('transactions').style.display !== 'none') {
+                loadTransactions();
+            }
+        }, 30000);
+
+        // Add these event listeners to load the requests when tabs are clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial load of deposit requests if deposits section is visible
+            if (document.getElementById('deposits').style.display !== 'none') {
+                loadDepositRequests();
+            }
+            
+            // Initial load of withdrawal requests if withdrawals section is visible
+            if (document.getElementById('withdrawals').style.display !== 'none') {
+                loadWithdrawalRequests();
+            }
+        });
+
+        // Add this to initialize everything when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransactions();
+            
+            // Refresh transactions every 30 seconds
+            setInterval(loadTransactions, 30000);
+        });
+
+        function showAddOddEvenResultModal() {
+            document.getElementById('addOddEvenResultModal').style.display = 'block';
+            document.getElementById('oddEvenResultDate').valueAsDate = new Date();
+        }
+
+        function loadOddEvenResults() {
+            fetch('/admin/oddeven-results')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('oddEvenResultsTable');
+                    tbody.innerHTML = '';
+                    if (data.results && data.results.length > 0) {
+                        data.results.forEach(result => {
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td>${new Date(result.date).toLocaleDateString()}</td>
+                                    <td>${result.result.toUpperCase()}</td>
+                                    <td>${result.total_bets}</td>
+                                    <td>₹${result.total_payout.toFixed(2)}</td>
+                                    <td>
+                                        <button class="action-btn view-btn" onclick="viewOddEvenResult('${result.id}')">View Details</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5">No results found</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to load odd/even results');
+                });
+        }
+
+        function handleAddOddEvenResult(event) {
+            event.preventDefault();
+            
+            const result = document.getElementById('oddEvenResult').value;
+            const date = document.getElementById('oddEvenResultDate').value;
+
+            fetch('/admin/add_oddeven_result', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    result: result,
+                    date: date
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    closeModal('addOddEvenResultModal');
+                    loadOddEvenResults();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to add result');
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- First, add this modal HTML just before the closing </body> tag -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>User Details</h2>
+        <div id="userDetails">
+            <!-- User details will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Add these styles in your CSS section -->
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.user-detail-row {
+    margin: 10px 0;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.user-detail-row label {
+    font-weight: bold;
+    color: #666;
+    min-width: 120px;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: #1877f2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #1464d8;
+}
+</style>
+
+<!-- Update the JavaScript section with these functions -->
+<script>
+function viewUser(userId) {
+    fetch(`/admin/user/${userId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(user => {
+            const modal = document.getElementById('userModal');
+            const userDetails = document.getElementById('userDetails');
+            
+            const createdDate = new Date(user.created_at).toLocaleString();
+            const lastLogin = user.last_login ? new Date(user.last_login).toLocaleString() : 'Never';
+            
+            userDetails.innerHTML = `
+                <div class="user-detail-row">
+                    <label>Username:</label>
+                    <span>${user.username || 'N/A'}</span>
+                </div>
+                <div class="user-detail-row">
+                    <label>Phone:</label>
+                    <span>${user.phone_number || 'N/A'}</span>
+                </div>
+                <div class="user-detail-row">
+                    <label>Balance:</label>
+                    <span id="userBalance">₹${parseFloat(user.balance || 0).toFixed(2)}</span>
+                </div>
+                <div class="user-detail-row">
+                    <label>Join Date:</label>
+                    <span>${createdDate}</span>
+                </div>
+                <div class="user-detail-row">
+                    <label>Last Login:</label>
+                    <span>${lastLogin}</span>
+                </div>
+                
+                <!-- Wallet Adjustment Section -->
+                <div class="wallet-adjustment">
+                    <h3>Adjust Wallet Balance</h3>
+                    <div class="adjustment-controls">
+                        <input type="number" id="adjustmentAmount" placeholder="Enter amount" min="0" step="0.01">
+                        <div class="adjustment-buttons">
+                            <button onclick="adjustWallet('${user.id}', 'add')" class="btn-success">Add</button>
+                            <button onclick="adjustWallet('${user.id}', 'subtract')" class="btn-danger">Subtract</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="closeUserModal()">Close</button>
+                </div>
+            `;
+            
+            modal.style.display = "block";
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading user details. Please try again.');
+        });
+}
+
+function closeUserModal() {
+    document.getElementById('userModal').style.display = "none";
+}
+
+// Close modal when clicking the X button
+document.querySelector('.close').onclick = closeUserModal;
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('userModal');
+    if (event.target == modal) {
+        closeUserModal();
+    }
+}
+
+function toggleUserStatus(userId, newStatus) {
+    if (!confirm(`Are you sure you want to ${newStatus ? 'unblock' : 'block'} this user?`)) {
+        return;
+    }
+
+    fetch('/admin/toggle-user-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            user_id: userId,
+            is_active: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('userModal').style.display = "none";
+            loadUsers(); // Reload the users list
+            alert(`User successfully ${newStatus ? 'unblocked' : 'blocked'}`);
+        } else {
+            alert('Failed to update user status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating user status');
+    });
+}
+
+function adjustWallet(userId, type) {
+    const amount = document.getElementById('adjustmentAmount').value;
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to ${type} ₹${amount} ${type === 'add' ? 'to' : 'from'} this user's wallet?`)) {
+        return;
+    }
+    
+    fetch('/admin/adjust-wallet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            user_id: userId,
+            amount: parseFloat(amount),
+            type: type
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        // Update the displayed balance
+        document.getElementById('userBalance').textContent = `₹${parseFloat(data.new_balance).toFixed(2)}`;
+        document.getElementById('adjustmentAmount').value = '';
+        alert('Wallet adjusted successfully');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'Error adjusting wallet');
+    });
+}
+</script>
+
+<!-- Add this to the modal section -->
+<div id="addOddEvenResultModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('addOddEvenResultModal')">&times;</span>
+        <h2>Add Odd/Even Result</h2>
+        <form id="addOddEvenResultForm" onsubmit="handleAddOddEvenResult(event)">
+            <div class="form-group">
+                <label>Result</label>
+                <select id="oddEvenResult" required>
+                    <option value="odd">Odd</option>
+                    <option value="even">Even</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="oddEvenResultDate" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Result</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add this to your JavaScript section -->
+<script>
+function handleAddOddEvenResult(event) {
+    event.preventDefault();
+    
+    const result = document.getElementById('oddEvenResult').value;
+    const date = document.getElementById('oddEvenResultDate').value;
+
+    fetch('/admin/add_oddeven_result', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            result: result,
+            date: date
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            closeModal('addOddEvenResultModal');
+            loadOddEvenResults();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to add result');
+    });
+}
+</script>
+
+

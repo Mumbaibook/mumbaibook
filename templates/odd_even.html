@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Burst Bet - Odd/Even</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .oddeven-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .game-header h1 {
+            font-size: 32px;
+            color: #333;
+            margin: 0 0 10px 0;
+        }
+
+        .game-header .multiplier {
+            font-size: 18px;
+            color: #666;
+            background: #f8f9fa;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            color: #333;
+        }
+
+        .timer i {
+            margin-right: 10px;
+            color: #666;
+        }
+
+        .bet-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .bet-button {
+            padding: 25px 40px;
+            font-size: 24px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 200px;
+            border: 3px solid transparent;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .bet-button.odd {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .bet-button.even {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .bet-button.odd.selected {
+            border-color: #ff2d2d;
+            box-shadow: 0 0 15px rgba(255, 45, 45, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .bet-button.even.selected {
+            border-color: #2ca69f;
+            box-shadow: 0 0 15px rgba(44, 166, 159, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .bet-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .bet-form {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .bet-amount {
+            padding: 15px;
+            font-size: 18px;
+            width: 250px;
+            margin-right: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .bet-amount:focus {
+            border-color: #4ecdc4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .submit-bet {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .submit-bet:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .submit-bet:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .oddeven-container {
+                margin: 10px;
+                padding: 20px;
+            }
+
+            .bet-options {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .bet-button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .bet-form {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                align-items: center;
+            }
+
+            .bet-amount {
+                width: 100%;
+                max-width: 300px;
+                margin-right: 0;
+            }
+
+            .submit-bet {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="oddeven-container">
+        <div class="game-header">
+            <h1>Burst Bet - Odd/Even</h1>
+            <span class="multiplier"><i class="fas fa-coins"></i> 2.1x Multiplier</span>
+        </div>
+
+        <div class="timer" id="gameTimer">
+            <i class="fas fa-clock"></i>
+            <span>Time Remaining: Loading...</span>
+        </div>
+        
+        <div class="bet-options">
+            <button class="bet-button odd" onclick="selectBet('odd')" id="oddBtn">
+                <i class="fas fa-dice-one"></i> Odd
+            </button>
+            <button class="bet-button even" onclick="selectBet('even')" id="evenBtn">
+                <i class="fas fa-dice-two"></i> Even
+            </button>
+        </div>
+        
+        <div class="bet-form">
+            <input type="number" class="bet-amount" id="betAmount" placeholder="Enter bet amount">
+            <button class="submit-bet" onclick="placeBet()">
+                <i class="fas fa-check"></i> Place Bet
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let selectedBet = null;
+        
+        function selectBet(type) {
+            selectedBet = type;
+            document.querySelectorAll('.bet-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById(`${type}Btn`).classList.add('selected');
+        }
+
+        function updateTimer() {
+            const now = new Date();
+            const target = new Date();
+            target.setHours(16, 0, 0); // 4 PM
+            
+            if (now.getHours() >= 16) {
+                document.getElementById('gameTimer').innerHTML = '<i class="fas fa-clock"></i> Game closed for today. Opens tomorrow at 12 AM';
+                return;
+            }
+            
+            const diff = target - now;
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            document.getElementById('gameTimer').innerHTML = 
+                `<i class="fas fa-clock"></i> Time Remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function placeBet() {
+            if (!selectedBet) {
+                alert('Please select Odd or Even');
+                return;
+            }
+            
+            const amount = document.getElementById('betAmount').value;
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid bet amount');
+                return;
+            }
+
+            fetch('/place_oddeven_bet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    betType: selectedBet,
+                    amount: amount
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert('Bet placed successfully!');
+                    window.location.href = '/bets';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to place bet');
+            });
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
