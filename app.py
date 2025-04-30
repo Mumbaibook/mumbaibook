@@ -1123,10 +1123,10 @@ def admin_game_results():
 @app.route('/odd_even')
 @login_required
 def odd_even():
-    # Check if current time is between 12 AM and 4 PM
+    # Check if current time is between 12 AM and 6 PM
     current_hour = datetime.datetime.now().hour
-    if current_hour >= 16:  # After 4 PM
-        return render_template('odd_even.html', error="Game available only between 12 AM to 4 PM")
+    if current_hour >= 18:  # Changed from 16 (4 PM) to 18 (6 PM)
+        return render_template('odd_even.html', error="Game available only between 12 AM to 6 PM")
     return render_template('odd_even.html')
 
 @app.route('/place_oddeven_bet', methods=['POST'])
@@ -1134,8 +1134,8 @@ def odd_even():
 def place_oddeven_bet():
     try:
         current_hour = datetime.datetime.now().hour
-        if current_hour >= 16:  # After 4 PM
-            return jsonify({'error': 'Game available only between 12 AM to 4 PM'}), 400
+        if current_hour >= 18:  # Changed from 16 to 18
+            return jsonify({'error': 'Game available only between 12 AM to 6 PM'}), 400
 
         data = request.json
         bet_type = data.get('betType')  # 'odd' or 'even'
